@@ -11,9 +11,9 @@ const {
 } = require("../utils/data-manipulation");
 
 const seed = async (data) => {
-  const { articleData, commentData, topicData, userData } = data;
+  
   // 1. create tables
-
+try {
   const dropAndCreate = async () => {
     await dropTables();
     await createTables();
@@ -26,9 +26,12 @@ const seed = async (data) => {
 
   // 2. insert data
 
-  const inputData = formatData(topicData, userData, articleData, commentData);
+  const inputData = formatData(data);
 
-  await insertData(inputData);
+  await insertData(inputData);}
+  catch(err){
+    console.log(err)
+  }
 
   // return await db.query(`SELECT * FROM comments;`).then((results) => {
   //   console.log(results.rows);

@@ -41,7 +41,9 @@ const dropTables = async () => {
 };
 
 
-const formatData = (topicData, userData, articleData, commentData) => {
+const formatData = (dataObj) => {
+    const { articleData, commentData, topicData, userData } = dataObj
+    
     const topicValues = topicData.map((topicObj) => {
       return [topicObj.slug, topicObj.description];
     });
@@ -58,7 +60,7 @@ const formatData = (topicData, userData, articleData, commentData) => {
         artObj.created_at,
       ];
     });
-    const commentsValues = commentData.map((comObj) => {
+    const commentValues = commentData.map((comObj) => {
       return [
         comObj.author,
         comObj.article_id,
@@ -68,12 +70,12 @@ const formatData = (topicData, userData, articleData, commentData) => {
       ];
     });
 
-    return { topicValues, userValues, articleValues, commentsValues };
+    return { topicValues, userValues, articleValues, commentValues };
   };
 
 const insertData = async (inputDataObject) => {
     // TOPICS, USERS, ARTICLES, COMMENTS
-    const { topicValues, userValues, articleValues, commentsValues } = inputDataObject
+    const { topicValues, userValues, articleValues, commentValues } = inputDataObject
 
     const queryStrTopics = format(
       `INSERT INTO topics (slug, description) VALUES %L;`,
@@ -89,7 +91,7 @@ const insertData = async (inputDataObject) => {
     );
     const queryStrComm = format(
       `INSERT INTO comments (author, article_id, votes, created_at, body) VALUES %L;`,
-      commentsValues
+      commentValues
     );
 
     await db.query(queryStrTopics);
