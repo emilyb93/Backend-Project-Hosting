@@ -4,6 +4,7 @@ exports.send404 = (res) =>{
 }
 
 exports.handlePSQLError = (res, next)=>{
-    console.log("in the error controller")
+    // console.log("in the error controller")
+    
     res.status(400).send({msg : "Bad Request"})
 }
