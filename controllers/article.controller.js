@@ -1,4 +1,8 @@
-const { fetchArticleById, patchArticleVotes} = require("../models/article.model.js");
+const {
+  fetchArticleById,
+  patchArticleVotes,
+  checkArticleExists,
+} = require("../models/article.model.js");
 
 exports.sendArticles = (req, res, next) => {
   //   console.log("in art controller");
@@ -15,21 +19,23 @@ exports.sendArticles = (req, res, next) => {
     });
 };
 
-exports.updateArticleVotes = (req, res, next) => {
-
-
+exports.updateArticleVotes = async (req, res, next) => {
   const { article_id } = req.params;
-  const updateObj  = req.body
+  const updateObj = req.body;
 
-//   console.log(article_id, "and", inc_votes)
+  //   console.log(article_id, "and", inc_votes)
 
+  try {
+    // console.log("inside try block")
+    await checkArticleExists(article_id);
+    // console.log(articleInfo);
 
-  patchArticleVotes(article_id, updateObj)
-  .then((results)=>{
-    //   console.log(results)
-      res.status(202).send({ 'article' : results })
-  }).catch((err)=>{
-    //   console.log("error", err)
-      next(err)
-  })
+    // console.log("article exists")
+    const results = await patchArticleVotes(article_id, updateObj);
+    // console.log(results.rows)
+
+    res.status(202).send({ article: results });
+  } catch (err) {
+    next(err);
+  }
 };
