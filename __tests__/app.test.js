@@ -46,41 +46,106 @@ describe("/api/topics", () => {
   });
 });
 
-describe("/api/articles", () => {
+describe("/api/articles/:article_id/comments", () => {
   describe("#GET", () => {
-    test.only("request an array of all articles", async () => {
+    test("request an array of all the comments for an article", async () => {
       const res = await request(app).get("/api/articles/1/comments");
-      expect(res.status).toBe(200)
-      res.body.comments.forEach((comment)=>{
+      expect(res.status).toBe(200);
+      res.body.comments.forEach((comment) => {
         expect(comment).toMatchObject({
-          comment_id : expect.any(Number),
-          votes : expect.any(Number),
-          created_at : expect.any(Date),
-          author : expect.any(String),
-          body : expect.any(String)
-        })
-      })
+          comment_id: expect.any(Number),
+          votes: expect.any(Number),
+          created_at: expect.any(String),
+          author: expect.any(String),
+          body: expect.any(String),
+        });
+      });
     });
   });
 });
-describe("/api/articles/:article_id", () => {
+
+describe.only("/api/articles/", () => {
   describe("#GET", () => {
-    test("requesting article by id", async () => {
-      await request(app)
-        .get("/api/articles/1")
-        .expect(200)
-        .then((res) => {
-          expect(res.body.article).toMatchObject({
-            author: expect.any(String),
-            title: expect.any(String),
-            article_id: expect.any(Number),
-            body: expect.any(String),
-            topic: expect.any(String),
-            votes: expect.any(Number),
-            comment_count: expect.any(Number),
-          });
-        });
+    test("request an article object", async () => {
+      const res = await request(app).get("/api/articles/1/");
+      expect(res.status).toBe(200);
+      // console.log(res.body);
+      expect(res.body.article).toMatchObject({
+        author: expect.any(String),
+        title: expect.any(String),
+        article_id: expect.any(Number),
+        body: expect.any(String),
+        topic: expect.any(String),
+        votes: expect.any(Number),
+        comment_count: expect.any(Number),
+      });
     });
+
+    test("requesting with a sort_by query", async () => {
+      const res = await request(app).get("/api/articles?sort_by=date");
+
+      expect(res.status).toBe(200);
+      const datesFromRes = res.body.articles.map((article) => {
+        return article.created_at;
+      });
+
+      expect(datesFromRes).toBeSorted();
+    });
+
+    test("requesting without a sort_by query, should order by date", async () => {
+      const res = await request(app).get("/api/articles");
+
+      expect(res.status).toBe(200);
+      const datesFromRes = res.body.articles.map((article) => {
+        return article.created_at;
+      });
+
+      expect(datesFromRes).toBeSorted();
+    });
+
+    test("requesting with a query of order=desc", async () => {
+      const res = await request(app).get("/api/articles?order=desc");
+
+      expect(res.status).toBe(200);
+      const datesFromRes = res.body.articles.map((article) => {
+        return article.created_at;
+      });
+
+      datesFromRes.reverse()
+
+      expect(datesFromRes).toBeSorted();
+    });
+
+    test("requesting with a query of topic=cats, expected to be in date order", async () => {
+      const res = await request(app).get("/api/articles?topic=cats");
+
+      expect(res.status).toBe(200);
+      const datesFromRes = res.body.articles.map((article) => {
+        return article.created_at;
+      });
+      res.body.articles.map((article)=>{
+        expect(article.topic).toBe('cats')
+      })
+
+
+      expect(datesFromRes).toBeSorted();
+    })
+    
+    test.only("requesting with a queries of ?topic=cats&sort_by=article_id&order=desc, expected to be in date order", async () => {
+      const res = await request(app).get("/api/articles?topic=cats&sort_by=article_id&order=desc,");
+      console.log(res.body)
+      
+      expect(res.status).toBe(200);
+      const articleIDsFromRes = res.body.articles.map((article) => {
+        return article.article_id;
+      });
+      res.body.articles.map((article)=>{
+        expect(article.topic).toBe('cats')
+      })
+      
+
+      expect(articleIDsFromRes).toBeSorted();
+    })
 
     describe("error handling", () => {
       test("wrong data type in the parametric", async () => {
@@ -101,14 +166,6 @@ describe("/api/articles/:article_id", () => {
           });
       });
     });
-
-    // describe('/api/articles/:article_id/comments', () => {
-    //   describe('#POST', () => {
-    //     test('posting a comment', () => {
-
-    //     });
-    //   });
-    // });
   });
 
   describe("#PATCH", () => {
