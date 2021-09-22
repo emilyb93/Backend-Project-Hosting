@@ -7,14 +7,14 @@ const app = require("../app");
 beforeEach(() => seed(testData));
 afterAll(() => db.end());
 
-describe.only("#api", () => {
+describe("#api", () => {
   test("request api homepage", async () => {
     const res = await request(app).get(`/api`);
 
     expect(res.status).toBe(200);
 
     expect(res.body.msg).toBe("Hello Welcome to the NC News API");
-   expect(res.body.endpoints).toBeInstanceOf(Object)
+    expect(res.body.endpoints).toBeInstanceOf(Object);
   });
 
   describe("error handling", () => {
@@ -66,6 +66,50 @@ describe("/api/articles/:article_id/comments", () => {
       const res = await request(app).get("/api/articles/2/comments");
       expect(res.status).toBe(200);
       expect(res.body.comments).toHaveLength(0);
+    });
+  });
+
+  describe.only("#POST", () => {
+    test("should post a comment to an article, given in the parametric", async () => {
+      const sentComment = {
+        username: "icellusedkars",
+        body: "first",
+      };
+
+      const res = await request(app)
+        .post("/api/articles/1/comments")
+        .send(sentComment);
+
+      expect(res.status).toBe(202);
+      expect(res.body.msg).toBe("Accepted");
+
+      const expectedObject = {
+        "comment_id": expect.any(Number),
+        "author": "icellusedkars",
+        "article_id": 1,
+        "votes": expect.any(Number),
+        "created_at": expect.anything(),
+        "body": "first",
+      };
+
+      // console.log(rses.body)
+      expect(res.body.comment).toMatchObject(expectedObject);
+    });
+
+    describe('error handling', () => {
+      test('pass an object with a username that doesnt exist', async() => {
+        const comment = {
+          "username": "xx_sniper_xx",
+          "body" : "my mom thinks im cool"
+        }
+        const res = await request(app)
+
+                          .post('/api/articles/1/comments')
+                          .send(comment)
+
+                          expect(res.status).toBe(404)
+                          expect(res.body.msg).toBe("Not Found")
+      });
     });
   });
 });
@@ -157,7 +201,7 @@ describe("/api/articles/", () => {
       const res = await request(app).get(
         "/api/articles?topic=cats&sort_by=article_id&order=desc,"
       );
-      console.log(res.body);
+      // console.log(res.body);
 
       expect(res.status).toBe(200);
       const articleIDsFromRes = res.body.articles.map((article) => {
