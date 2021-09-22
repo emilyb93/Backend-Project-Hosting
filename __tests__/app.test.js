@@ -7,14 +7,14 @@ const app = require("../app");
 beforeEach(() => seed(testData));
 afterAll(() => db.end());
 
-describe("#api", () => {
+describe.only("#api", () => {
   test("request api homepage", async () => {
-    await request(app)
-      .get(`/api`)
-      .expect(200)
-      .then((res) => {
-        expect(res.body.msg).toBe("Hello Welcome to the NC News API");
-      });
+    const res = await request(app).get(`/api`);
+
+    expect(res.status).toBe(200);
+
+    expect(res.body.msg).toBe("Hello Welcome to the NC News API");
+   expect(res.body.endpoints).toBeInstanceOf(Object)
   });
 
   describe("error handling", () => {
@@ -59,12 +59,35 @@ describe("/api/articles/:article_id/comments", () => {
           author: expect.any(String),
           body: expect.any(String),
         });
+        // console.log(res.body)
       });
+    });
+    test("request an array of all the comments for an article that has no comments", async () => {
+      const res = await request(app).get("/api/articles/2/comments");
+      expect(res.status).toBe(200);
+      expect(res.body.comments).toHaveLength(0);
     });
   });
 });
+describe("error handling", () => {
+  test("request article comments where the article doesnt exist", async () => {
+    const res = await request(app).patch("/api/articles/600/comments");
 
-describe.only("/api/articles/", () => {
+    expect(res.status).toBe(404);
+    expect(res.body.msg).toBe("Not Found");
+  });
+
+  test("wrong data type in the parametric", async () => {
+    await request(app)
+      .get("/api/articles/dog/comments")
+      .expect(400)
+      .then((res) => {
+        expect(res.body.msg).toBe("Bad Request");
+      });
+  });
+});
+
+describe("/api/articles/", () => {
   describe("#GET", () => {
     test("request an article object", async () => {
       const res = await request(app).get("/api/articles/1/");
@@ -111,7 +134,7 @@ describe.only("/api/articles/", () => {
         return article.created_at;
       });
 
-      datesFromRes.reverse()
+      datesFromRes.reverse();
 
       expect(datesFromRes).toBeSorted();
     });
@@ -123,29 +146,29 @@ describe.only("/api/articles/", () => {
       const datesFromRes = res.body.articles.map((article) => {
         return article.created_at;
       });
-      res.body.articles.map((article)=>{
-        expect(article.topic).toBe('cats')
-      })
-
+      res.body.articles.map((article) => {
+        expect(article.topic).toBe("cats");
+      });
 
       expect(datesFromRes).toBeSorted();
-    })
-    
-    test.only("requesting with a queries of ?topic=cats&sort_by=article_id&order=desc, expected to be in date order", async () => {
-      const res = await request(app).get("/api/articles?topic=cats&sort_by=article_id&order=desc,");
-      console.log(res.body)
-      
+    });
+
+    test("requesting with a queries of ?topic=cats&sort_by=article_id&order=desc, expected to be in date order", async () => {
+      const res = await request(app).get(
+        "/api/articles?topic=cats&sort_by=article_id&order=desc,"
+      );
+      console.log(res.body);
+
       expect(res.status).toBe(200);
       const articleIDsFromRes = res.body.articles.map((article) => {
         return article.article_id;
       });
-      res.body.articles.map((article)=>{
-        expect(article.topic).toBe('cats')
-      })
-      
+      res.body.articles.map((article) => {
+        expect(article.topic).toBe("cats");
+      });
 
       expect(articleIDsFromRes).toBeSorted();
-    })
+    });
 
     describe("error handling", () => {
       test("wrong data type in the parametric", async () => {

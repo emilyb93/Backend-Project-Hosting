@@ -49,7 +49,7 @@ exports.fetchAllArticles = async (query) => {
   let queryStr = "SELECT * FROM articles";
   let queryValues = [];
 
-  console.log(query)
+  // console.log(query)
 
   const validQueries = {
     date: "created_at",
@@ -84,7 +84,7 @@ exports.fetchAllArticles = async (query) => {
     queryStr += ` ASC`
   }
   
-  console.log(queryStr, queryValues)
+  // console.log(queryStr, queryValues)
 
   
 
