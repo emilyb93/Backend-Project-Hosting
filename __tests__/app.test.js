@@ -69,7 +69,7 @@ describe("/api/articles/:article_id/comments", () => {
     });
   });
 
-  describe("#POST", () => {
+  describe.only("#POST", () => {
     test("should post a comment to an article, given in the parametric", async () => {
       const sentComment = {
         username: "icellusedkars",
@@ -82,6 +82,7 @@ describe("/api/articles/:article_id/comments", () => {
 
       expect(res.status).toBe(202);
       expect(res.body.msg).toBe("Accepted");
+      console.log(res.body.comment)
 
       const expectedObject = {
         comment_id: expect.any(Number),
@@ -332,7 +333,7 @@ describe('/api/comments/:comment_id', () => {
 });
 
 
-describe.only('/api/users', () => {
+describe('/api/users', () => {
   describe('#GET', () => {
     test('request an array of objects with usernames', async() => {
       const res = await request(app)
