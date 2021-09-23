@@ -1,6 +1,6 @@
 const {
   fetchAllCommentsByArticleID,
-  postNewComment,
+  postNewComment, deleteCommentByID
 } = require("../models/comment.model.js");
 
 exports.sendAllCommentsByArticleID = async (req, res, next) => {
@@ -27,3 +27,15 @@ exports.addCommentToArticle = async (req, res, next) => {
     next(err);
   }
 };
+
+
+exports.removeCommentByID = async (req ,res ,next)=>{
+try{
+  const {comment_id} = req.params
+  await deleteCommentByID(comment_id)
+
+  res.status(204).send({msg : "Accepted"})
+  } catch (err) {
+  next(err)
+}
+}

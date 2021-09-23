@@ -110,22 +110,22 @@ describe("/api/articles/:article_id/comments", () => {
       });
     });
   });
-});
-describe("error handling", () => {
-  test("request article comments where the article doesnt exist", async () => {
-    const res = await request(app).patch("/api/articles/600/comments");
-
-    expect(res.status).toBe(404);
-    expect(res.body.msg).toBe("Not Found");
-  });
-
-  test("wrong data type in the parametric", async () => {
-    await request(app)
-      .get("/api/articles/dog/comments")
-      .expect(400)
-      .then((res) => {
-        expect(res.body.msg).toBe("Bad Request");
-      });
+  describe("error handling", () => {
+    test("request article comments where the article doesnt exist", async () => {
+      const res = await request(app).patch("/api/articles/600/comments");
+  
+      expect(res.status).toBe(404);
+      expect(res.body.msg).toBe("Not Found");
+    });
+  
+    test("wrong data type in the parametric", async () => {
+      await request(app)
+        .get("/api/articles/dog/comments")
+        .expect(400)
+        .then((res) => {
+          expect(res.body.msg).toBe("Bad Request");
+        });
+    });
   });
 });
 
@@ -295,5 +295,38 @@ describe("/api/articles/", () => {
         expect(res.body.msg).toBe("Not Found");
       });
     });
+  });
+});
+
+describe('/api/comments/:comment_id', () => {
+  describe('DELETE', () => {
+    test('delete comment when comment id supplied', async () => {
+      const res = await request(app)
+      .delete('/api/comments/1')
+      expect(res.status).toBe(204)
+    });
+  });
+  describe('error handling',  () => {
+    test('the comment doesnt exist', async () => {
+      const res = await request(app)
+      .delete('/api/comments/45511')
+      expect(res.status).toBe(404)
+      expect(res.body.msg).toBe('Not Found')
+    });
+
+    test('the parametric is not an int', async () => {
+      const res = await request(app)
+      .delete('/api/comments/badcomment')
+      expect(res.status).toBe(400)
+      expect(res.body.msg).toBe('Bad Request')
+    });
+
+    test('the parametric is a negative int', async () => {
+      const res = await request(app)
+      .delete('/api/comments/-1')
+      expect(res.status).toBe(404)
+      expect(res.body.msg).toBe('Not Found')
+    });
+    
   });
 });

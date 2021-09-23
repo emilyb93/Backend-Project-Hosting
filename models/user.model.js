@@ -1,7 +1,7 @@
 const db = require("../db/connection");
 
 exports.checkUserExists = async (username) => {
-  try {
+  // try {
     const result = await db.query("SELECT * FROM users WHERE username = $1", [
       username,
     ]);
@@ -9,7 +9,7 @@ exports.checkUserExists = async (username) => {
       const err = { status: 404, msg: "Not Found" };
       throw err;
     }
-  } catch (err) {
-    throw(err);
-  }
+  // } catch (err) {
+  //   throw(err);
+  // }
 };

@@ -23,40 +23,41 @@ exports.fetchArticleById = async (article_id) => {
 };
 
 exports.patchArticleVotes = async (article_id, updateObj) => {
-  try {
-    if (updateObj.inc_votes === 0 || Object.keys(updateObj).length !== 1) {
-      throw { code: 400 };
-    }
-
-    const { inc_votes } = updateObj;
-    const result = await db.query(
-      "UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING*;",
-      [inc_votes, article_id]
-    );
-
-    return result.rows[0];
-  } catch (err) {
-    throw err;
+  // try {
+  if (updateObj.inc_votes === 0 || Object.keys(updateObj).length !== 1) {
+    throw { code: 400 };
   }
+
+  const { inc_votes } = updateObj;
+  const result = await db.query(
+    "UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING*;",
+    [inc_votes, article_id]
+  );
+
+  return result.rows[0];
+  // } catch (err) {
+  //   throw err;
+  // }
 };
 
 exports.checkArticleExists = async (article_id) => {
-  try {
-    const result = await db.query(
-      "SELECT * FROM articles WHERE article_id = $1;",
-      [article_id]
-    );
+  // try {
+  const result = await db.query(
+    "SELECT * FROM articles WHERE article_id = $1;",
+    [article_id]
+  );
 
-    if (result.rows.length === 0) {
-      throw { status: 404, msg: "Not Found" };
-    }
-  } catch (err) {
-    throw err;
+  if (result.rows.length === 0) {
+    throw { status: 404, msg: "Not Found" };
   }
+  // } catch (err) {
+  //   throw err;
+  // }
 };
 
 exports.fetchAllArticles = async (query) => {
-  try {let queryStr = "SELECT * FROM articles";
+  // try {
+  let queryStr = "SELECT * FROM articles";
   let queryValues = [];
 
   const validQueries = {
@@ -92,10 +93,11 @@ exports.fetchAllArticles = async (query) => {
 
   const { rows } = await db.query(queryStr, queryValues);
   if (rows.length === 0) {
-    throw({ status: 404, msg: "Not Found" });
+    throw { status: 404, msg: "Not Found" };
   } else {
     return rows;
-  }} catch (err){
-    throw (err)
   }
+  // } catch (err) {
+  //   throw err;
+  // }
 };
