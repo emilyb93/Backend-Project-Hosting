@@ -10,6 +10,11 @@ This repo is an api which showcases back end coding using modules such as expres
 
 ## - Setup -
 
+###Minimum Versions
+
+Node : 14.16.0
+Postgres 8.7.1
+
 To set up this api you will first need to clone from the provided github repo at the top of this readme.
 
 ### HTTPS:
