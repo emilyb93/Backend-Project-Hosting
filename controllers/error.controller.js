@@ -1,5 +1,5 @@
 exports.send404 = (res) =>{
-    console.log("404")
+    // console.log("404"s)
     res.status(404).send({msg : "Not Found"})
 }
 
