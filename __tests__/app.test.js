@@ -330,3 +330,20 @@ describe('/api/comments/:comment_id', () => {
     
   });
 });
+
+
+describe.only('/api/users', () => {
+  describe('#GET', () => {
+    test('request an array of objects with usernames', async() => {
+      const res = await request(app)
+      .get('/api/users')
+      
+      expect(res.status).toBe(200)
+      console.log(res.body)
+      res.body.users.forEach((userObj)=>{
+        expect(typeof userObj.username).toBe('string')
+        expect(Object.keys(userObj)).toHaveLength(1)
+      })
+    });
+  });
+});
