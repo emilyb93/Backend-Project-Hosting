@@ -69,7 +69,7 @@ describe("/api/articles/:article_id/comments", () => {
     });
   });
 
-  describe.only("#POST", () => {
+  describe("#POST", () => {
     test("should post a comment to an article, given in the parametric", async () => {
       const sentComment = {
         username: "icellusedkars",
@@ -84,31 +84,29 @@ describe("/api/articles/:article_id/comments", () => {
       expect(res.body.msg).toBe("Accepted");
 
       const expectedObject = {
-        "comment_id": expect.any(Number),
-        "author": "icellusedkars",
-        "article_id": 1,
-        "votes": expect.any(Number),
-        "created_at": expect.anything(),
-        "body": "first",
+        comment_id: expect.any(Number),
+        author: "icellusedkars",
+        article_id: 1,
+        votes: expect.any(Number),
+        created_at: expect.anything(),
+        body: "first",
       };
 
-      // console.log(rses.body)
       expect(res.body.comment).toMatchObject(expectedObject);
     });
 
-    describe('error handling', () => {
-      test('pass an object with a username that doesnt exist', async() => {
+    describe("error handling", () => {
+      test("pass an object with a username that doesnt exist", async () => {
         const comment = {
-          "username": "xx_sniper_xx",
-          "body" : "my mom thinks im cool"
-        }
+          username: "xx_sniper_xx",
+          body: "my mom thinks im cool",
+        };
         const res = await request(app)
+          .post("/api/articles/1/comments")
+          .send(comment);
 
-                          .post('/api/articles/1/comments')
-                          .send(comment)
-
-                          expect(res.status).toBe(404)
-                          expect(res.body.msg).toBe("Not Found")
+        expect(res.status).toBe(400);
+        expect(res.body.msg).toBe("Bad Request");
       });
     });
   });
@@ -133,7 +131,7 @@ describe("error handling", () => {
 
 describe("/api/articles/", () => {
   describe("#GET", () => {
-    test("request an article object", async () => {
+    test("request a single article by id", async () => {
       const res = await request(app).get("/api/articles/1/");
       expect(res.status).toBe(200);
       // console.log(res.body);
@@ -227,9 +225,9 @@ describe("/api/articles/", () => {
       test("article that doesnt exist", async () => {
         await request(app)
           .get("/api/articles/999")
-          .expect(400)
+          .expect(404)
           .then((res) => {
-            expect(res.body.msg).toBe("Bad Request");
+            expect(res.body.msg).toBe("Not Found");
           });
       });
     });

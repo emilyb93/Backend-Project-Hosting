@@ -1,9 +1,12 @@
-const db = require("../db/connection")
-const pg = require("pg")
+const db = require("../db/connection");
+const pg = require("pg");
 
 exports.fetchAllTopics = async () => {
-return await db.query("SELECT * FROM topics")
-.then((result)=>{
-    return result.rows
-})
-}
+  try {
+    const allTopics = await db.query("SELECT * FROM topics");
+
+    return allTopics.rows;
+  } catch (err) {
+    throw err;
+  }
+};

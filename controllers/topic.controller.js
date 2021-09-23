@@ -1,7 +1,7 @@
-const { fetchAllTopics } = require("../models/topic.model.js")
+const { fetchAllTopics } = require("../models/topic.model.js");
 
-exports.sendAllTopics = (req, res, next)=>{
-    fetchAllTopics().then((topics)=>{
-        res.status(200).send({topics : topics})
-    })
-}
+exports.sendAllTopics = async (req, res, next) => {
+  const result = await fetchAllTopics();
+
+  res.status(200).send({ topics: result });
+};

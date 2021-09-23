@@ -26,16 +26,14 @@ try {
 
   // 2. insert data
 
-  const inputData = formatData(data);
+  const inputData = await formatData(data);
 
   await insertData(inputData);}
   catch(err){
     console.log(err)
   }
 
-  // return await db.query(`SELECT * FROM comments;`).then((results) => {
-  //   console.log(results.rows);
-  // });
+
 };
 
 module.exports = seed;

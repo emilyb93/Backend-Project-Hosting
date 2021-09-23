@@ -3,7 +3,7 @@ exports.send404 = (res) =>{
     res.status(404).send({msg : "Not Found"})
 }
 
-exports.handlePSQLError = (res, next)=>{
+exports.handlePSQLError = (res)=>{
     // console.log("in the error controller")
     
     res.status(400).send({msg : "Bad Request"})

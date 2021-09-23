@@ -37,7 +37,6 @@ exports.updateArticleVotes = async (req, res, next) => {
 
 exports.sendAllArticles = async (req, res, next) => {
   const query = req.query;
-  // console.log(query);
 
   try {
     const sortedArticles = await fetchAllArticles(query);
