@@ -1,4 +1,5 @@
 const db = require("../db/connection");
+const userRouter = require("../routers/user.router");
 
 exports.checkUserExists = async (username) => {
   // try {
@@ -16,5 +17,16 @@ exports.checkUserExists = async (username) => {
 
 exports.fetchAllUsers = async () => {
   const results = await db.query("SELECT username FROM users;");
-  return results.rows
+  return results.rows;
+};
+
+exports.fetchUserInfo = async (username) => {
+  const result = await db.query("SELECT * FROM users WHERE username = $1", [
+    username,
+  ]);
+  if (result.rows.length === 0) {
+    throw { status: 404 };
+  }
+
+  return result.rows[0];
 };

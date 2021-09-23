@@ -69,7 +69,7 @@ describe("/api/articles/:article_id/comments", () => {
     });
   });
 
-  describe.only("#POST", () => {
+  describe("#POST", () => {
     test("should post a comment to an article, given in the parametric", async () => {
       const sentComment = {
         username: "icellusedkars",
@@ -348,11 +348,34 @@ describe('/api/users', () => {
     });
   });
 
-  // describe('/api/users/:username', () => {
-  //   describe('GET', () => {
-  //     test('request a specific username object by username', () => {
+  describe.only('/api/users/:username', () => {
+    describe('GET', () => {
+      test('request a specific username object by username', async() => {
         
-  //     });
-  //   });
-  // });
+        const res = await request(app)
+        .get('/api/users/icellusedkars')
+
+        const checkObj = { 
+          "username" : "icellusedkars",
+          "avatar_url" : expect.any(String),
+          "name" : expect.any(String)
+        }
+
+        // console.log(res.body)
+        expect(res.status).toBe(200)
+        expect(res.body.user).toMatchObject(checkObj);
+      })
+    });
+
+
+  describe('error handling', () => {
+    test('username doesnt exist', async () => {
+      const res = await request(app)
+      .get('/api/users/joeyjojojuniorshabadoo')
+
+      expect(res.status).toBe(404)
+      expect(res.body.msg).toBe("Not Found")
+    });
+  });
+  });
 });
