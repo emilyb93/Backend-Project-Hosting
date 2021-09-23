@@ -346,4 +346,12 @@ describe.only('/api/users', () => {
       })
     });
   });
+
+  // describe('/api/users/:username', () => {
+  //   describe('GET', () => {
+  //     test('request a specific username object by username', () => {
+        
+  //     });
+  //   });
+  // });
 });
