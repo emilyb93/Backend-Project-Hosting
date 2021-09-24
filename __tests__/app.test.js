@@ -70,7 +70,7 @@ describe("/api/articles/:article_id/comments", () => {
   });
 
   describe("#POST", () => {
-    test("should post a comment to an article, given in the parametric", async () => {
+    test.only("should post a comment to an article, given in the parametric", async () => {
       const sentComment = {
         username: "icellusedkars",
         body: "first",
@@ -131,9 +131,10 @@ describe("/api/articles/:article_id/comments", () => {
 });
 
 describe("/api/articles/", () => {
-  describe("#GET", () => {
+  describe.only("#GET", () => {
     test("request a single article by id", async () => {
       const res = await request(app).get("/api/articles/1/");
+      console.log(res.body)
       expect(res.status).toBe(200);
       // console.log(res.body);
       expect(res.body.article).toMatchObject({
@@ -334,11 +335,11 @@ describe('/api/comments/:comment_id', () => {
 
 
 describe('/api/users', () => {
-  describe('#GET', () => {
+  describe.only('#GET', () => {
     test('request an array of objects with usernames', async() => {
       const res = await request(app)
       .get('/api/users')
-      
+      console.log(res.body)
       expect(res.status).toBe(200)
       console.log(res.body)
       res.body.users.forEach((userObj)=>{
@@ -349,11 +350,12 @@ describe('/api/users', () => {
   });
 
   describe.only('/api/users/:username', () => {
-    describe('GET', () => {
+    describe.only('GET', () => {
       test('request a specific username object by username', async() => {
         
         const res = await request(app)
         .get('/api/users/icellusedkars')
+        console.log(res.body)
 
         const checkObj = { 
           "username" : "icellusedkars",
