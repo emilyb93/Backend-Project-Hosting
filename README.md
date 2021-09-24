@@ -1,8 +1,11 @@
 # **News Server Project**
 
 ## - Hosted Version -
-
+### gitHub Repository
 https://github.com/emilyb93/Backend-Project-Hosting
+
+### Hosted Server
+https://news-server-project.herokuapp.com/api
 
 ## - Summary -
 
@@ -56,7 +59,7 @@ Finally you will need to create 2 files. These files will give the connection fi
 insert into this file the following
 
 ```
-PGDATABASE=nc-news
+PGDATABASE=nc_news
 ```
 
 and now create the test file as
@@ -67,7 +70,7 @@ and insert the following into this
 
 ```
 
-PGDATABASE=nc-news-test
+PGDATABASE=nc_news_test
 ```
 
 ## Testing
