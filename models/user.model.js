@@ -1,7 +1,8 @@
 const db = require("../db/connection");
 
-exports.checkUserExists = async (username) => {
+exports.checkUserExists = async (req) => {
   // try {
+    const {username} = req.body
   if(!username){
     throw({code : 400})
   }

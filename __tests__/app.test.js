@@ -3,54 +3,56 @@ const db = require("../db/connection.js");
 const testData = require("../db/data/test-data/index.js");
 const seed = require("../db/seeds/seed.js");
 const app = require("../app");
-const { string } = require("pg-format");
-const { length } = require("../db/data/test-data/articles.js");
 
 beforeEach(() => seed(testData));
 afterAll(() => db.end());
 
 describe("#api", () => {
-  test("request api homepage", async () => {
-    const res = await request(app).get(`/api`);
+  describe("GET", () => {
+    test("request api homepage", async () => {
+      const res = await request(app).get(`/api`);
 
-    expect(res.status).toBe(200);
+      expect(res.status).toBe(200);
 
-    expect(res.body.msg).toBe(
-      "Hello Welcome to the NC News API, NOW DEPLOYED WITH CI/CD"
-    );
-    expect(res.body.endpoints).toBeInstanceOf(Object);
-  });
+      expect(res.body.msg).toBe(
+        "Hello Welcome to the NC News API, NOW DEPLOYED WITH CI/CD"
+      );
+      expect(res.body.endpoints).toBeInstanceOf(Object);
+    });
 
-  describe("error handling", () => {
-    test("request non existent endpoint", async () => {
-      await request(app)
-        .get(`/doesntexist`)
-        .expect(404)
-        .then((res) => {
-          expect(res.body.msg).toBe("Not Found");
-        });
+    describe("error handling", () => {
+      test("request non existent endpoint", async () => {
+        await request(app)
+          .get(`/doesntexist`)
+          .expect(404)
+          .then((res) => {
+            expect(res.body.msg).toBe("Not Found");
+          });
+      });
     });
   });
 });
 
 describe("/api/topics", () => {
-  test("request all topics", async () => {
-    await request(app)
-      .get("/api/topics")
-      .expect(200)
-      .then((res) => {
-        expect(res.body.topics).toHaveLength(3);
-        res.body.topics.forEach((topic) => {
-          expect(topic).toMatchObject({
-            slug: expect.any(String),
-            description: expect.any(String),
+  describe("GET", () => {
+    test("request all topics", async () => {
+      await request(app)
+        .get("/api/topics")
+        .expect(200)
+        .then((res) => {
+          expect(res.body.topics).toHaveLength(3);
+          res.body.topics.forEach((topic) => {
+            expect(topic).toMatchObject({
+              slug: expect.any(String),
+              description: expect.any(String),
+            });
           });
         });
-      });
+    });
   });
 });
 
-describe("/api/articles/:article_id/comments", () => {
+describe.only("/api/articles/:article_id/comments", () => {
   describe("#GET", () => {
     test("request an array of all the comments for an article", async () => {
       const res = await request(app).get("/api/articles/1/comments");
@@ -71,7 +73,7 @@ describe("/api/articles/:article_id/comments", () => {
       const res = await request(app).get("/api/articles/2/comments");
       expect(res.status).toBe(200);
       expect(res.body.comments).toHaveLength(0);
-      console.log(res.body)
+      console.log(res.body);
     });
 
     describe("error handling", () => {
@@ -99,7 +101,7 @@ describe("/api/articles/:article_id/comments", () => {
     });
   });
 
-  describe("#POST", () => {
+  describe.only("#POST", () => {
     test("should post a comment to an article, given in the parametric", async () => {
       const sentComment = {
         username: "icellusedkars",
@@ -139,9 +141,9 @@ describe("/api/articles/:article_id/comments", () => {
         expect(res.body.msg).toBe("Not Found");
       });
 
-      test('pass object missing username', async () => {
+      test("pass object missing username", async () => {
         const comment = {
-          body: "my mom thinks im cool"
+          body: "my mom thinks im cool",
         };
         const res = await request(app)
           .post("/api/articles/1/comments")
@@ -151,19 +153,21 @@ describe("/api/articles/:article_id/comments", () => {
         expect(res.body.msg).toBe("Bad Request");
       });
 
-      test("pass object with no body", async()=>{
+      test("pass object with no body", async () => {
         const comment = {
-          username : "icellusedkars"
-        }
-        const res = await request(app).post('/api/articles/1/comments').send(comment)
-        expect(res.status).toBe(400)
-        expect(res.body.msg).toBe("Bad Request")
-      })
+          username: "icellusedkars",
+        };
+        const res = await request(app)
+          .post("/api/articles/1/comments")
+          .send(comment);
+        expect(res.status).toBe(400);
+        expect(res.body.msg).toBe("Bad Request");
+      });
     });
   });
 });
 
-describe("/api/articles/", () => {
+describe("/api/articles/:article_id", () => {
   describe("#GET", () => {
     test("request a single article by id", async () => {
       const res = await request(app).get("/api/articles/1/");
@@ -179,6 +183,30 @@ describe("/api/articles/", () => {
       });
     });
 
+    describe("error handling", () => {
+      test("wrong data type in the parametric", async () => {
+        await request(app)
+          .get("/api/articles/dog")
+          .expect(400)
+          .then((res) => {
+            expect(res.body.msg).toBe("Bad Request");
+          });
+      });
+
+      test("article that doesnt exist", async () => {
+        await request(app)
+          .get("/api/articles/999")
+          .expect(404)
+          .then((res) => {
+            expect(res.body.msg).toBe("Not Found");
+          });
+      });
+    });
+  });
+});
+
+describe("/api/articles/", () => {
+  describe("GET", () => {
     test("request an array of all articles with no queries", async () => {
       const res = await request(app).get("/api/articles");
 
@@ -267,26 +295,29 @@ describe("/api/articles/", () => {
     });
 
     describe("error handling", () => {
-      test("wrong data type in the parametric", async () => {
-        await request(app)
-          .get("/api/articles/dog")
-          .expect(400)
-          .then((res) => {
-            expect(res.body.msg).toBe("Bad Request");
-          });
-      });
-
-      test("article that doesnt exist", async () => {
-        await request(app)
-          .get("/api/articles/999")
-          .expect(404)
-          .then((res) => {
-            expect(res.body.msg).toBe("Not Found");
-          });
-      });
-
-      test("queried with an order=bananas", async () => {
+      test("queried with order that is not an accepted term", async () => {
         const res = await request(app).get("/api/articles?order=bananas");
+
+        expect(res.status).toBe(400);
+        expect(res.body.msg).toBe("Bad Request");
+      });
+
+      test("queried with sort by that is not an accepted query", async () => {
+        const res = await request(app).get("/api/articles?sort_by=coolness");
+
+        expect(res.status).toBe(400);
+        expect(res.body.msg).toBe("Bad Request");
+      });
+
+      test("queried with a topic that is not in the database ", async () => {
+        const res = await request(app).get("/api/articles?topic=funnycatmemes");
+
+        expect(res.status).toBe(404);
+        expect(res.body.msg).toBe("Not Found");
+      });
+
+      test("query with a key that is not in the accepted query terms", async () => {
+        const res = await request(app).get("/api/articles?votes=0");
 
         expect(res.status).toBe(400);
         expect(res.body.msg).toBe("Bad Request");
@@ -308,7 +339,7 @@ describe("/api/articles/", () => {
         });
     });
     test("updating vote count", async () => {
-      // article id 1, has 100 show should return 120
+      // article id 1, has 100 votes should return -20
       const updateVotes = { inc_votes: -120 };
       await request(app)
         .patch("/api/articles/1")
@@ -365,7 +396,7 @@ describe("/api/articles/", () => {
   });
 });
 
-describe("/api/comments/:comment_id", () => {
+describe.only("/api/comments/:comment_id", () => {
   describe("DELETE", () => {
     test("delete comment when comment id supplied", async () => {
       const res = await request(app).delete("/api/comments/1");
@@ -391,14 +422,13 @@ describe("/api/comments/:comment_id", () => {
       });
     });
   });
-  describe.skip("PATCH", () => {
+  describe("PATCH", () => {
     test("should alter the votes of a comment by the amount given", async () => {
       const updateObj = {
         inc_votes: 10,
       };
-
+      //comment_id 1 has a vote count of 16 in the test data, we should expect 21
       const res = await request(app).patch("/api/comments/1").send(updateObj);
-      console.log(res.body);
       expect(res.status).toBe(202);
       expect(res.body.comment).toMatchObject({
         comment_id: 1,
@@ -407,6 +437,67 @@ describe("/api/comments/:comment_id", () => {
         author: expect.any(String),
         created_at: expect.any(String),
       });
+    });
+
+    describe('error handling', () => {
+
+      test('comment id does not exist', async() => {
+        const updateObj = {
+          inc_votes: 10,
+        };
+        const res = await request(app).patch('/api/comments/43194013').send(updateObj)
+
+        expect(res.status).toBe(404)
+        expect(res.body.msg).toBe("Not Found")
+      });
+
+      test('update object has incorrect key', async() => {
+        const updateObj = {
+          votes: 10,
+        };
+
+        const res = await request(app).patch('/api/comments/4').send(updateObj)
+
+        expect(res.status).toBe(400)
+        expect(res.body.msg).toBe("Bad Request")
+      });
+
+      test('update object has incorrect data type for inc_votes', async () => {
+        const updateObj = {
+          inc_votes: "twenty",
+        };
+
+        const res = await request(app).patch('/api/comments/3').send(updateObj)
+
+        expect(res.status).toBe(400)
+        expect(res.body.msg).toBe("Bad Request")
+
+      });
+
+      test('inc_votes has a value of 0', async() => {
+        const updateObj = {
+          inc_votes: 0,
+        };
+
+        const res = await request(app).patch('/api/comments/2').send(updateObj)
+
+        expect(res.status).toBe(400)
+        expect(res.body.msg).toBe("Bad Request")
+      });
+
+      test('update object has more keys than expected', async () => {
+        const updateObj = {
+          inc_votes: 10,
+          comment: "more votes, rad"
+
+        };
+
+        const res = await request(app).patch('/api/comments/1').send(updateObj)
+
+        expect(res.status).toBe(400)
+        expect(res.body.msg).toBe("Bad Request")
+      });
+      
     });
   });
 
@@ -471,32 +562,32 @@ describe("/api/users", () => {
       });
     });
   });
+});
 
-  describe("/api/users/:username", () => {
-    describe("GET", () => {
-      test("request a specific username object by username", async () => {
-        const res = await request(app).get("/api/users/icellusedkars");
-        // console.log(res.body)
+describe("/api/users/:username", () => {
+  describe("GET", () => {
+    test("request a specific username object by username", async () => {
+      const res = await request(app).get("/api/users/icellusedkars");
+      // console.log(res.body)
 
-        const checkObj = {
-          username: "icellusedkars",
-          avatar_url: expect.any(String),
-          name: expect.any(String),
-        };
+      const checkObj = {
+        username: "icellusedkars",
+        avatar_url: expect.any(String),
+        name: expect.any(String),
+      };
 
-        // // console.log(res.body)
-        expect(res.status).toBe(200);
-        expect(res.body.user).toMatchObject(checkObj);
-      });
+      // // console.log(res.body)
+      expect(res.status).toBe(200);
+      expect(res.body.user).toMatchObject(checkObj);
     });
+  });
 
-    describe("error handling", () => {
-      test("username doesnt exist", async () => {
-        const res = await request(app).get("/api/users/joeyjojojuniorshabadoo");
+  describe("error handling", () => {
+    test("username doesnt exist", async () => {
+      const res = await request(app).get("/api/users/joeyjojojuniorshabadoo");
 
-        expect(res.status).toBe(404);
-        expect(res.body.msg).toBe("Not Found");
-      });
+      expect(res.status).toBe(404);
+      expect(res.body.msg).toBe("Not Found");
     });
   });
 });

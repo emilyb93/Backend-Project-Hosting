@@ -40,8 +40,10 @@ exports.patchArticleVotes = async (article_id, updateObj) => {
   // }
 };
 
-exports.checkArticleExists = async (article_id) => {
+exports.checkArticleExists = async (req) => {
   // try {
+
+  const { article_id} = req.params
   const result = await db.query(
     "SELECT * FROM articles WHERE article_id = $1;",
     [article_id]
@@ -68,6 +70,14 @@ exports.fetchAllArticles = async (query) => {
     article_id: "article_id",
     topic: "topic",
   };
+
+  const validQueryKeys = ["order", 'sort_by', 'topic']
+
+  Object.keys(query).forEach((queryKey)=>{
+    if (validQueryKeys.indexOf(queryKey) === -1){
+      throw({code: 400})
+    }
+  })
 
   if (query.topic) {
     queryStr += " WHERE topic = $1";

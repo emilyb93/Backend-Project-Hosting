@@ -1,23 +1,22 @@
 const db = require("../db/connection");
 const articles = require("../db/data/test-data/articles");
 
-exports.fetchAllCommentsByArticleID = async (article_id) => {
-  // try {
+exports.fetchAllCommentsByArticleID = async (req) => {
+  const { article_id } = req.params;
+
   const result = await db.query(
     "SELECT * FROM comments WHERE article_id = $1",
     [article_id]
   );
   return result.rows;
-  // } catch (err) {
-  //   throw err;
-  // }
 };
 
-exports.postNewComment = async (username, body, article_id) => {
-  // try {
-    if (!body){
-      throw({code : 400})
-    }
+exports.postNewComment = async (req) => {
+  const { username, body } = req.body;
+  const { article_id } = req.params;
+  if (!body) {
+    throw { code: 400 };
+  }
   const result = await db.query(
     `INSERT INTO comments (
         author, article_id, votes, created_at, body
@@ -27,13 +26,10 @@ exports.postNewComment = async (username, body, article_id) => {
   );
 
   return result.rows[0];
-  // } catch (err) {
-  //   throw err;
-  // }
 };
 
-exports.deleteCommentByID = async (comment_id) => {
-  // try {
+exports.deleteCommentByID = async (req) => {
+  const { comment_id } = req.params;
 
   const check = await db.query("SELECT FROM comments WHERE comment_id = $1", [
     comment_id,
@@ -42,17 +38,16 @@ exports.deleteCommentByID = async (comment_id) => {
     throw { status: 404 };
   }
   await db.query("DELETE FROM comments WHERE comment_id = $1", [comment_id]);
-  // } catch (err) {
-  //   // console.log(err, "err found");
-  //   throw (err);
-  // }
 };
 
-exports.patchCommentVotes = async (comment_id, inc_votes) => {
-  if (!inc_votes){
-    throw({code : 400})
+exports.patchCommentVotes = async (req) => {
+  const { comment_id } = req.params;
+  const { inc_votes } = req.body;
+
+  if (!inc_votes || Object.keys(req.body).length !== 1) {
+    throw { code: 400 };
   }
-  
+
   const result = await db.query(
     "UPDATE comments SET votes = votes + $1 WHERE comment_id = $2 RETURNING*;",
     [inc_votes, comment_id]
@@ -61,9 +56,9 @@ exports.patchCommentVotes = async (comment_id, inc_votes) => {
   return result.rows[0];
 };
 
-exports.checkCommmentExists = async (comment_id) => {
+exports.checkCommmentExists = async (req) => {
+  const { comment_id } = req.params;
 
-  
   const result = await db.query(
     "SELECT * FROM comments WHERE comment_id = $1;",
     [comment_id]
