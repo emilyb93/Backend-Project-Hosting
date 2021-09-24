@@ -1,3 +1,5 @@
 node_modules
 .env.*
 Dev README.md
+error-handling.md
+hosting.md

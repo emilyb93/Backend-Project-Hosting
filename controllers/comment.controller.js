@@ -1,6 +1,9 @@
 const {
   fetchAllCommentsByArticleID,
-  postNewComment, deleteCommentByID
+  postNewComment,
+  deleteCommentByID,
+  patchCommentVotes,
+  checkCommmentExists,
 } = require("../models/comment.model.js");
 
 exports.sendAllCommentsByArticleID = async (req, res, next) => {
@@ -28,14 +31,33 @@ exports.addCommentToArticle = async (req, res, next) => {
   }
 };
 
+exports.removeCommentByID = async (req, res, next) => {
+  try {
+    const { comment_id } = req.params;
+    await deleteCommentByID(comment_id);
 
-exports.removeCommentByID = async (req ,res ,next)=>{
-try{
-  const {comment_id} = req.params
-  await deleteCommentByID(comment_id)
-
-  res.status(204).send({msg : "Accepted"})
+    res.status(202).send({ msg: "Accepted" });
   } catch (err) {
-  next(err)
-}
-}
+    next(err);
+  }
+};
+
+exports.updateCommentVotes = async (req, res, next) => {
+  try {
+    const { comment_id } = req.params;
+    const { inc_votes } = req.body;
+
+
+    const check = await checkCommmentExists(comment_id)
+    
+    const result = await patchCommentVotes(comment_id, inc_votes);
+
+
+
+    res.status(202).send({ comment: result });
+  } catch (err) {
+    next(err);
+  }
+};
+
+
