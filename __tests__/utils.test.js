@@ -20,6 +20,13 @@ describe("#formatData", () => {
     const output = formatData(testData);
     expect(output.articleValues.length).toBe(articleData.length);
   });
+  test('ensure that the original data is not mutated', () => {
+    const copyTest = {...testData}
+    formatData(testData)
+    
+    expect(copyTest).toEqual(testData)
+    expect(testData).not.toBe(copyTest)
+  });
 });
 
 

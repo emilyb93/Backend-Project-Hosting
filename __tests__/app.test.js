@@ -15,7 +15,9 @@ describe("#api", () => {
 
     expect(res.status).toBe(200);
 
-    expect(res.body.msg).toBe("Hello Welcome to the NC News API, NOW DEPLOYED WITH CI/CD");
+    expect(res.body.msg).toBe(
+      "Hello Welcome to the NC News API, NOW DEPLOYED WITH CI/CD"
+    );
     expect(res.body.endpoints).toBeInstanceOf(Object);
   });
 
@@ -53,6 +55,7 @@ describe("/api/articles/:article_id/comments", () => {
     test("request an array of all the comments for an article", async () => {
       const res = await request(app).get("/api/articles/1/comments");
       expect(res.status).toBe(200);
+      expect(res.body.comments.length).toBeGreaterThan(0);
       res.body.comments.forEach((comment) => {
         expect(comment).toMatchObject({
           comment_id: expect.any(Number),
@@ -84,7 +87,6 @@ describe("/api/articles/:article_id/comments", () => {
 
       expect(res.status).toBe(202);
       expect(res.body.msg).toBe("Accepted");
-      // console.log(res.body.comment)
 
       const expectedObject = {
         comment_id: expect.any(Number),
@@ -115,12 +117,12 @@ describe("/api/articles/:article_id/comments", () => {
   });
   describe("error handling", () => {
     test("request article comments where the article doesnt exist", async () => {
-      const res = await request(app).patch("/api/articles/600/comments");
-  
+      const res = await request(app).get("/api/articles/600/comments");
+
       expect(res.status).toBe(404);
       expect(res.body.msg).toBe("Not Found");
     });
-  
+
     test("wrong data type in the parametric", async () => {
       await request(app)
         .get("/api/articles/dog/comments")
@@ -136,9 +138,7 @@ describe("/api/articles/", () => {
   describe("#GET", () => {
     test("request a single article by id", async () => {
       const res = await request(app).get("/api/articles/1/");
-      // console.log(res.body)
       expect(res.status).toBe(200);
-      // // console.log(res.body);
       expect(res.body.article).toMatchObject({
         author: expect.any(String),
         title: expect.any(String),
@@ -150,70 +150,88 @@ describe("/api/articles/", () => {
       });
     });
 
-    test("requesting with a sort_by query", async () => {
-      const res = await request(app).get("/api/articles?sort_by=date");
+    test("request an array of all articles with no queries", async () => {
+      const res = await request(app).get("/api/articles");
 
       expect(res.status).toBe(200);
-      const datesFromRes = res.body.articles.map((article) => {
-        return article.created_at;
-      });
+      expect(res.body.articles.length).toBeGreaterThan(0);
+      expect(res.body.articles).toBeSortedBy('created_at', {descending: true})
 
-      expect(datesFromRes).toBeSorted();
+      res.body.articles.forEach((article) => {
+        expect(article).toMatchObject({
+          author: expect.any(String),
+          title: expect.any(String),
+          article_id: expect.any(Number),
+          topic: expect.any(String),
+          votes: expect.any(Number),
+          comment_count: expect.any(Number),
+        });
+      });
+    });
+
+    test("requesting with a sort_by query", async () => {
+      const res = await request(app).get("/api/articles?sort_by=votes");
+
+      expect(res.status).toBe(200);
+     
+      expect(res.body.articles.length).toBeGreaterThan(0);
+
+      expect(res.body.articles).toBeSortedBy("votes", { descending: true });
     });
 
     test("requesting without a sort_by query, should order by date", async () => {
       const res = await request(app).get("/api/articles");
 
       expect(res.status).toBe(200);
-      const datesFromRes = res.body.articles.map((article) => {
-        return article.created_at;
-      });
+     
+      
+      expect(res.body.articles.length).toBeGreaterThan(0);
 
-      expect(datesFromRes).toBeSorted();
+      expect(res.body.articles).toBeSortedBy("created_at", {
+        descending: true,
+      });
     });
 
     test("requesting with a query of order=desc", async () => {
       const res = await request(app).get("/api/articles?order=desc");
 
       expect(res.status).toBe(200);
-      const datesFromRes = res.body.articles.map((article) => {
-        return article.created_at;
+
+      expect(res.body.articles.length).toBeGreaterThan(0);
+
+      expect(res.body.articles).toBeSortedBy("created_at", {
+        descending: true,
       });
-
-      datesFromRes.reverse();
-
-      expect(datesFromRes).toBeSorted();
     });
 
     test("requesting with a query of topic=cats, expected to be in date order", async () => {
       const res = await request(app).get("/api/articles?topic=cats");
 
       expect(res.status).toBe(200);
-      const datesFromRes = res.body.articles.map((article) => {
-        return article.created_at;
-      });
-      res.body.articles.map((article) => {
+     
+      res.body.articles.forEach((article) => {
         expect(article.topic).toBe("cats");
       });
+      expect(res.body.articles.length).toBeGreaterThan(0);
 
-      expect(datesFromRes).toBeSorted();
+      expect(res.body.articles).toBeSortedBy('created_at', {descending : true});
     });
 
-    test("requesting with a queries of ?topic=cats&sort_by=article_id&order=desc, expected to be in date order", async () => {
+    test("requesting with a queries of ?topic=cats&sort_by=article_id&order=asc, expected to be in date order", async () => {
       const res = await request(app).get(
-        "/api/articles?topic=cats&sort_by=article_id&order=desc,"
+        "/api/articles?topic=mitch&sort_by=article_id&order=asc"
       );
-      // // console.log(res.body);
 
       expect(res.status).toBe(200);
-      const articleIDsFromRes = res.body.articles.map((article) => {
-        return article.article_id;
-      });
-      res.body.articles.map((article) => {
-        expect(article.topic).toBe("cats");
-      });
 
-      expect(articleIDsFromRes).toBeSorted();
+      res.body.articles.map((article) => {
+        expect(article.topic).toBe("mitch");
+      });
+      expect(res.body.articles.length).toBeGreaterThan(0);
+
+      expect(res.body.articles).toBeSortedBy("article_id", {
+        descending: false,
+      });
     });
 
     describe("error handling", () => {
@@ -233,6 +251,13 @@ describe("/api/articles/", () => {
           .then((res) => {
             expect(res.body.msg).toBe("Not Found");
           });
+      });
+
+      test("queried with an order=bananas", async () => {
+        const res = await request(app).get("/api/articles?order=bananas");
+
+        expect(res.status).toBe(400);
+        expect(res.body.msg).toBe("Bad Request");
       });
     });
   });
@@ -258,7 +283,6 @@ describe("/api/articles/", () => {
         .send(updateVotes)
         .expect(202)
         .then((res) => {
-          // // console.log(res.body);
           expect(res.body.article.votes).toBe(-20);
         });
     });
@@ -298,151 +322,149 @@ describe("/api/articles/", () => {
         expect(res.status).toBe(404);
         expect(res.body.msg).toBe("Not Found");
       });
+      test("updateObj has incorrect key", async () => {
+        const res = await request(app)
+          .patch("/api/articles/1")
+          .send({ dog: 20 });
+        expect(res.status).toBe(400);
+        expect(res.body.msg).toBe("Bad Request");
+      });
     });
   });
 });
 
-describe('/api/comments/:comment_id', () => {
-  describe('DELETE', () => {
-    test('delete comment when comment id supplied', async () => {
-      const res = await request(app)
-      .delete('/api/comments/1')
-      expect(res.status).toBe(202)
+describe("/api/comments/:comment_id", () => {
+  describe("DELETE", () => {
+    test("delete comment when comment id supplied", async () => {
+      const res = await request(app).delete("/api/comments/1");
+      expect(res.status).toBe(202);
     });
-    describe('error handling',  () => {
-      test('the comment doesnt exist', async () => {
-        const res = await request(app)
-        .delete('/api/comments/45511')
-        expect(res.status).toBe(404)
-        expect(res.body.msg).toBe('Not Found')
+    describe("error handling", () => {
+      test("the comment doesnt exist", async () => {
+        const res = await request(app).delete("/api/comments/45511");
+        expect(res.status).toBe(404);
+        expect(res.body.msg).toBe("Not Found");
       });
-  
-      test('the parametric is not an int', async () => {
-        const res = await request(app)
-        .delete('/api/comments/badcomment')
-        expect(res.status).toBe(400)
-        expect(res.body.msg).toBe('Bad Request')
+
+      test("the parametric is not an int", async () => {
+        const res = await request(app).delete("/api/comments/badcomment");
+        expect(res.status).toBe(400);
+        expect(res.body.msg).toBe("Bad Request");
       });
-  
-      test('the parametric is a negative int', async () => {
-        const res = await request(app)
-        .delete('/api/comments/-1')
-        expect(res.status).toBe(404)
-        expect(res.body.msg).toBe('Not Found')
+
+      test("the parametric is a negative int", async () => {
+        const res = await request(app).delete("/api/comments/-1");
+        expect(res.status).toBe(404);
+        expect(res.body.msg).toBe("Not Found");
       });
-      
     });
   });
-  describe.only('PATCH', () => {
-    test('should alter the votes of a comment by the amount given', async() => {
+  describe.skip("PATCH", () => {
+    test("should alter the votes of a comment by the amount given", async () => {
       const updateObj = {
-        "inc_votes" : 10 
-      }
-     
-      const res =  await request(app).patch('/api/comments/1').send(updateObj)
-      console.log(res.body)
-      expect(res.status).toBe(202)
-      expect(res.body.comment).toMatchObject({
-        "comment_id" : 1,
-        "body" : expect.any(String),
-        "votes" : 26,
-        "author" : expect.any(String),
-        "created_at" : expect.any(String)
-      })
-
-    });
-
-  });
-
-  describe('error handling', () => {
-    test("comment id given doesnt exist", async ()=>{
-      const updateObj = {
-        "inc_votes" : 10 
+        inc_votes: 10,
       };
 
-      const res = await request(app).patch('/api/comments/1565456').send(updateObj)
-      expect(res.status).toBe(404)
-      expect(res.body.msg).toBe("Not Found")
-    })
+      const res = await request(app).patch("/api/comments/1").send(updateObj);
+      console.log(res.body);
+      expect(res.status).toBe(202);
+      expect(res.body.comment).toMatchObject({
+        comment_id: 1,
+        body: expect.any(String),
+        votes: 26,
+        author: expect.any(String),
+        created_at: expect.any(String),
+      });
+    });
+  });
 
-    test('comment id is invalid data type', async () => {
+  describe("error handling", () => {
+    test("comment id given doesnt exist", async () => {
       const updateObj = {
-        "inc_votes" : 10 
-      }
-      const res = await request(app).patch('/api/comments/funnycomment').send(updateObj)
+        inc_votes: 10,
+      };
 
-      expect(res.status).toBe(400)
-      expect(res.body.msg).toBe("Bad Request")
+      const res = await request(app)
+        .patch("/api/comments/1565456")
+        .send(updateObj);
+      expect(res.status).toBe(404);
+      expect(res.body.msg).toBe("Not Found");
     });
 
-    test('updateObj is incorrect format', async() => {
+    test("comment id is invalid data type", async () => {
+      const updateObj = {
+        inc_votes: 10,
+      };
+      const res = await request(app)
+        .patch("/api/comments/funnycomment")
+        .send(updateObj);
+
+      expect(res.status).toBe(400);
+      expect(res.body.msg).toBe("Bad Request");
+    });
+
+    test("updateObj is incorrect format", async () => {
       const updateObj1 = {
-        inc_votes : "ten"
-      }
+        inc_votes: "ten",
+      };
 
+      const res = await request(app).patch("/api/comments/1").send(updateObj1);
 
-      const res = await request(app).patch('/api/comments/1').send(updateObj1)
+      expect(res.status).toBe(400);
+      expect(res.body.msg).toBe("Bad Request");
 
-      expect(res.status).toBe(400)
-      expect(res.body.msg).toBe("Bad Request")
-      
       const updateObj2 = {
-        "incoming_votes" : 10
-      }
+        incoming_votes: 10,
+      };
 
-     const res2 = await request(app).patch('/api/comments/1').send(updateObj2)
+      const res2 = await request(app).patch("/api/comments/1").send(updateObj2);
 
-      expect(res2.status).toBe(400)
-      expect(res2.body.msg).toBe("Bad Request")
+      expect(res2.status).toBe(400);
+      expect(res2.body.msg).toBe("Bad Request");
     });
   });
 });
 
-
-describe('/api/users', () => {
-  describe('#GET', () => {
-    test('request an array of objects with usernames', async() => {
-      const res = await request(app)
-      .get('/api/users')
+describe("/api/users", () => {
+  describe("#GET", () => {
+    test("request an array of objects with usernames", async () => {
+      const res = await request(app).get("/api/users");
       // console.log(res.body)
-      expect(res.status).toBe(200)
+      expect(res.status).toBe(200);
       // console.log(res.body)
-      res.body.users.forEach((userObj)=>{
-        expect(typeof userObj.username).toBe('string')
-        expect(Object.keys(userObj)).toHaveLength(1)
-      })
+      expect(res.body.users.length).toBeGreaterThan(0);
+      res.body.users.forEach((userObj) => {
+        expect(typeof userObj.username).toBe("string");
+        expect(Object.keys(userObj)).toHaveLength(1);
+      });
     });
   });
 
-  describe('/api/users/:username', () => {
-    describe('GET', () => {
-      test('request a specific username object by username', async() => {
-        
-        const res = await request(app)
-        .get('/api/users/icellusedkars')
+  describe("/api/users/:username", () => {
+    describe("GET", () => {
+      test("request a specific username object by username", async () => {
+        const res = await request(app).get("/api/users/icellusedkars");
         // console.log(res.body)
 
-        const checkObj = { 
-          "username" : "icellusedkars",
-          "avatar_url" : expect.any(String),
-          "name" : expect.any(String)
-        }
+        const checkObj = {
+          username: "icellusedkars",
+          avatar_url: expect.any(String),
+          name: expect.any(String),
+        };
 
         // // console.log(res.body)
-        expect(res.status).toBe(200)
+        expect(res.status).toBe(200);
         expect(res.body.user).toMatchObject(checkObj);
-      })
+      });
     });
 
+    describe("error handling", () => {
+      test("username doesnt exist", async () => {
+        const res = await request(app).get("/api/users/joeyjojojuniorshabadoo");
 
-  describe('error handling', () => {
-    test('username doesnt exist', async () => {
-      const res = await request(app)
-      .get('/api/users/joeyjojojuniorshabadoo')
-
-      expect(res.status).toBe(404)
-      expect(res.body.msg).toBe("Not Found")
+        expect(res.status).toBe(404);
+        expect(res.body.msg).toBe("Not Found");
+      });
     });
-  });
   });
 });

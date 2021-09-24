@@ -24,7 +24,7 @@ exports.fetchArticleById = async (article_id) => {
 
 exports.patchArticleVotes = async (article_id, updateObj) => {
   // try {
-  if (updateObj.inc_votes === 0 || Object.keys(updateObj).length !== 1) {
+  if (!updateObj.inc_votes || Object.keys(updateObj).length !== 1) {
     throw { code: 400 };
   }
 
@@ -85,17 +85,31 @@ exports.fetchAllArticles = async (query) => {
   }
 
   // add asc/desc
-  if (query.order == "desc") {
+  if (query.order == "asc") {
+    queryStr += ` ASC`;
+  } else if (query.order == "desc" || !query.order) {
     queryStr += ` DESC`;
   } else {
-    queryStr += ` ASC`;
+    throw({code : 400})
+
   }
 
   const { rows } = await db.query(queryStr, queryValues);
   if (rows.length === 0) {
     throw { status: 404, msg: "Not Found" };
   } else {
-    return rows;
+
+   const formattedRows = rows.map(async (article)=>{
+       const sumOfComments = await db.query(
+        "SELECT * FROM comments WHERE article_id = $1;",
+        [article.article_id]
+      );
+      article.comment_count = sumOfComments.rows.length
+      delete article.body
+      return article
+    })
+    
+    return  Promise.all(formattedRows);
   }
   // } catch (err) {
   //   throw err;

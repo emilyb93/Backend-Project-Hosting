@@ -5,11 +5,12 @@ const {
   patchCommentVotes,
   checkCommmentExists,
 } = require("../models/comment.model.js");
-
+const { checkArticleExists } = require("../models/article.model");
 exports.sendAllCommentsByArticleID = async (req, res, next) => {
   const { article_id } = req.params;
 
   try {
+    await checkArticleExists(article_id);
     const result = await fetchAllCommentsByArticleID(article_id);
 
     res.status(200).send({ comments: result });
@@ -47,17 +48,12 @@ exports.updateCommentVotes = async (req, res, next) => {
     const { comment_id } = req.params;
     const { inc_votes } = req.body;
 
+    const check = await checkCommmentExists(comment_id);
 
-    const check = await checkCommmentExists(comment_id)
-    
     const result = await patchCommentVotes(comment_id, inc_votes);
-
-
 
     res.status(202).send({ comment: result });
   } catch (err) {
     next(err);
   }
 };
-
-

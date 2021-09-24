@@ -26,7 +26,7 @@ const createTables = async () => {
   await db.query(`CREATE TABLE comments(
         comment_id SERIAL PRIMARY KEY,
         author VARCHAR REFERENCES users(username),
-        article_id INT REFERENCES articles(article_id),
+        article_id INT REFERENCES articles(article_id) ON DELETE CASCADE,
         votes INT DEFAULT 0,
         created_at DATE DEFAULT CURRENT_TIMESTAMP,
         body VARCHAR(1000) NOT NULL
