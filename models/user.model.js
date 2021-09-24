@@ -3,10 +3,13 @@ const userRouter = require("../routers/user.router");
 
 exports.checkUserExists = async (username) => {
   // try {
+  if(!username){
+    throw({code : 400})
+  }
   const result = await db.query("SELECT * FROM users WHERE username = $1", [
     username,
   ]);
-  if (!result.rows[0]) {
+  if (result.rows.length === 0) {
     const err = { status: 404, msg: "Not Found" };
     throw err;
   }

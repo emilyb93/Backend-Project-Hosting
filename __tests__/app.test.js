@@ -71,10 +71,35 @@ describe("/api/articles/:article_id/comments", () => {
       const res = await request(app).get("/api/articles/2/comments");
       expect(res.status).toBe(200);
       expect(res.body.comments).toHaveLength(0);
+      console.log(res.body)
+    });
+
+    describe("error handling", () => {
+      test("requesting non existent article comments", async () => {
+        const res = await request(app).get("/api/articles/9999/comments");
+        expect(res.status).toBe(404);
+        expect(res.body.msg).toBe("Not Found");
+      });
+
+      test("request article comments where the article doesnt exist", async () => {
+        const res = await request(app).get("/api/articles/600/comments");
+
+        expect(res.status).toBe(404);
+        expect(res.body.msg).toBe("Not Found");
+      });
+
+      test("wrong data type in the parametric", async () => {
+        await request(app)
+          .get("/api/articles/dog/comments")
+          .expect(400)
+          .then((res) => {
+            expect(res.body.msg).toBe("Bad Request");
+          });
+      });
     });
   });
 
-  describe("#POST", () => {
+  describe.only("#POST", () => {
     test("should post a comment to an article, given in the parametric", async () => {
       const sentComment = {
         username: "icellusedkars",
@@ -85,8 +110,8 @@ describe("/api/articles/:article_id/comments", () => {
         .post("/api/articles/1/comments")
         .send(sentComment);
 
-      expect(res.status).toBe(202);
-      expect(res.body.msg).toBe("Accepted");
+      expect(res.status).toBe(201);
+      expect(res.body.msg).toBe("Created");
 
       const expectedObject = {
         comment_id: expect.any(Number),
@@ -101,7 +126,7 @@ describe("/api/articles/:article_id/comments", () => {
     });
 
     describe("error handling", () => {
-      test("pass an object with a username that doesnt exist", async () => {
+      test.only("pass an object with a username that doesnt exist", async () => {
         const comment = {
           username: "xx_sniper_xx",
           body: "my mom thinks im cool",
@@ -110,26 +135,30 @@ describe("/api/articles/:article_id/comments", () => {
           .post("/api/articles/1/comments")
           .send(comment);
 
+        expect(res.status).toBe(404);
+        expect(res.body.msg).toBe("Not Found");
+      });
+
+      test.only('pass object missing username', async () => {
+        const comment = {
+          body: "my mom thinks im cool"
+        };
+        const res = await request(app)
+          .post("/api/articles/1/comments")
+          .send(comment);
+
         expect(res.status).toBe(400);
         expect(res.body.msg).toBe("Bad Request");
       });
-    });
-  });
-  describe("error handling", () => {
-    test("request article comments where the article doesnt exist", async () => {
-      const res = await request(app).get("/api/articles/600/comments");
 
-      expect(res.status).toBe(404);
-      expect(res.body.msg).toBe("Not Found");
-    });
-
-    test("wrong data type in the parametric", async () => {
-      await request(app)
-        .get("/api/articles/dog/comments")
-        .expect(400)
-        .then((res) => {
-          expect(res.body.msg).toBe("Bad Request");
-        });
+      test.only("pass object with no body", async()=>{
+        const comment = {
+          username : "icellusedkars"
+        }
+        const res = await request(app).post('/api/articles/1/comments').send(comment)
+        expect(res.status).toBe(400)
+        expect(res.body.msg).toBe("Bad Request")
+      })
     });
   });
 });
@@ -155,7 +184,9 @@ describe("/api/articles/", () => {
 
       expect(res.status).toBe(200);
       expect(res.body.articles.length).toBeGreaterThan(0);
-      expect(res.body.articles).toBeSortedBy('created_at', {descending: true})
+      expect(res.body.articles).toBeSortedBy("created_at", {
+        descending: true,
+      });
 
       res.body.articles.forEach((article) => {
         expect(article).toMatchObject({
@@ -173,7 +204,7 @@ describe("/api/articles/", () => {
       const res = await request(app).get("/api/articles?sort_by=votes");
 
       expect(res.status).toBe(200);
-     
+
       expect(res.body.articles.length).toBeGreaterThan(0);
 
       expect(res.body.articles).toBeSortedBy("votes", { descending: true });
@@ -183,8 +214,7 @@ describe("/api/articles/", () => {
       const res = await request(app).get("/api/articles");
 
       expect(res.status).toBe(200);
-     
-      
+
       expect(res.body.articles.length).toBeGreaterThan(0);
 
       expect(res.body.articles).toBeSortedBy("created_at", {
@@ -208,13 +238,15 @@ describe("/api/articles/", () => {
       const res = await request(app).get("/api/articles?topic=cats");
 
       expect(res.status).toBe(200);
-     
+
       res.body.articles.forEach((article) => {
         expect(article.topic).toBe("cats");
       });
       expect(res.body.articles.length).toBeGreaterThan(0);
 
-      expect(res.body.articles).toBeSortedBy('created_at', {descending : true});
+      expect(res.body.articles).toBeSortedBy("created_at", {
+        descending: true,
+      });
     });
 
     test("requesting with a queries of ?topic=cats&sort_by=article_id&order=asc, expected to be in date order", async () => {

@@ -15,6 +15,9 @@ exports.fetchAllCommentsByArticleID = async (article_id) => {
 
 exports.postNewComment = async (username, body, article_id) => {
   // try {
+    if (!body){
+      throw({code : 400})
+    }
   const result = await db.query(
     `INSERT INTO comments (
         author, article_id, votes, created_at, body

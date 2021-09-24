@@ -6,6 +6,7 @@ const {
   checkCommmentExists,
 } = require("../models/comment.model.js");
 const { checkArticleExists } = require("../models/article.model");
+const { checkUserExists } = require("../models/user.model.js");
 exports.sendAllCommentsByArticleID = async (req, res, next) => {
   const { article_id } = req.params;
 
@@ -24,9 +25,10 @@ exports.addCommentToArticle = async (req, res, next) => {
   const { article_id } = req.params;
 
   try {
+    await checkUserExists(username)
     const result = await postNewComment(username, body, article_id);
 
-    res.status(202).send({ msg: "Accepted", comment: result });
+    res.status(201).send({ msg: "Created", comment: result });
   } catch (err) {
     next(err);
   }
