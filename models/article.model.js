@@ -99,6 +99,7 @@ exports.fetchAllArticles = async (req) => {
     throw { code: 400 };
   }
 
+  
   const { rows } = await db.query(queryStr, queryValues);
   if (rows.length === 0) {
     throw { status: 404, msg: "Not Found" };

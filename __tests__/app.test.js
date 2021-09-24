@@ -332,7 +332,6 @@ describe("/api/articles/", () => {
         .send(updateVotes)
         .expect(202)
         .then((res) => {
-          // // console.log(res.body);
           expect(res.body.article.votes).toBe(20);
         });
     });
@@ -550,9 +549,7 @@ describe("/api/users", () => {
   describe("#GET", () => {
     test("request an array of objects with usernames", async () => {
       const res = await request(app).get("/api/users");
-      // console.log(res.body)
       expect(res.status).toBe(200);
-      // console.log(res.body)
       expect(res.body.users.length).toBeGreaterThan(0);
       res.body.users.forEach((userObj) => {
         expect(typeof userObj.username).toBe("string");
@@ -566,7 +563,6 @@ describe("/api/users/:username", () => {
   describe("GET", () => {
     test("request a specific username object by username", async () => {
       const res = await request(app).get("/api/users/icellusedkars");
-      // console.log(res.body)
 
       const checkObj = {
         username: "icellusedkars",
@@ -574,7 +570,6 @@ describe("/api/users/:username", () => {
         name: expect.any(String),
       };
 
-      // // console.log(res.body)
       expect(res.status).toBe(200);
       expect(res.body.user).toMatchObject(checkObj);
     });

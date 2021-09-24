@@ -4,10 +4,8 @@ const {
   checkArticleExists,
   fetchAllArticles,
 } = require("../models/article.model.js");
-const { fetchAllCommentsByArticleID } = require("../models/comment.model.js");
 
 exports.sendArticles = async (req, res, next) => {
-  // const { article_id } = req.params;
 
   try {
    
