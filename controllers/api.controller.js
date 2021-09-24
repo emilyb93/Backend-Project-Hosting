@@ -3,7 +3,7 @@ const { sendAllCommentsByArticleID } = require("./comment.controller");
 
 exports.sendGreeting = async (req, res, next) => {
   const apiObject = {
-    msg: "Hello Welcome to the NC News API",
+    msg: "Hello Welcome to the NC News API, NOW DEPLOYED WITH CI/CD",
     endpoints: endpoints,
   };
 
