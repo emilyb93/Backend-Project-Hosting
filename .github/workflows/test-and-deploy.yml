@@ -28,7 +28,8 @@ jobs:
         run: npm ci
 
       - name: Run tests
-        run: PGDATABASE=nc-news-test
+        run: PGDATABASE=nc-news-test PGUSER=test_user PGPASSWORD=test_password npm t
+
     
   deploy:
     runs-on: ubuntu-latest
@@ -43,4 +44,3 @@ jobs:
          heroku_api_key: ${{secrets.API_KEY}}
          heroku_app_name: ${{secrets.APP_NAME}}
          heroku_email: ${{secrets.EMAIL}}
-          run: PGDATABASE=nc-news-test PGUSER=test_user PGPASSWORD=test_password npm t
