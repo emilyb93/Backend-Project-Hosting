@@ -1,6 +1,8 @@
 const db = require("../db/connection");
 
-exports.fetchArticleById = async (article_id) => {
+exports.fetchArticleById = async (req) => {
+  const { article_id } = req.params;
+
   let fetchedArticle = await db.query(
     "SELECT * FROM articles WHERE article_id = $1;",
     [article_id]
@@ -22,8 +24,10 @@ exports.fetchArticleById = async (article_id) => {
   }
 };
 
-exports.patchArticleVotes = async (article_id, updateObj) => {
-  // try {
+exports.patchArticleVotes = async (req) => {
+  const { article_id } = req.params;
+  const updateObj = req.body;
+
   if (!updateObj.inc_votes || Object.keys(updateObj).length !== 1) {
     throw { code: 400 };
   }
@@ -35,15 +39,10 @@ exports.patchArticleVotes = async (article_id, updateObj) => {
   );
 
   return result.rows[0];
-  // } catch (err) {
-  //   throw err;
-  // }
 };
 
 exports.checkArticleExists = async (req) => {
-  // try {
-
-  const { article_id} = req.params
+  const { article_id } = req.params;
   const result = await db.query(
     "SELECT * FROM articles WHERE article_id = $1;",
     [article_id]
@@ -52,13 +51,10 @@ exports.checkArticleExists = async (req) => {
   if (result.rows.length === 0) {
     throw { status: 404, msg: "Not Found" };
   }
-  // } catch (err) {
-  //   throw err;
-  // }
 };
 
-exports.fetchAllArticles = async (query) => {
-  // try {
+exports.fetchAllArticles = async (req) => {
+  const query = req.query;
   let queryStr = "SELECT * FROM articles";
   let queryValues = [];
 
@@ -71,13 +67,13 @@ exports.fetchAllArticles = async (query) => {
     topic: "topic",
   };
 
-  const validQueryKeys = ["order", 'sort_by', 'topic']
+  const validQueryKeys = ["order", "sort_by", "topic"];
 
-  Object.keys(query).forEach((queryKey)=>{
-    if (validQueryKeys.indexOf(queryKey) === -1){
-      throw({code: 400})
+  Object.keys(query).forEach((queryKey) => {
+    if (validQueryKeys.indexOf(queryKey) === -1) {
+      throw { code: 400 };
     }
-  })
+  });
 
   if (query.topic) {
     queryStr += " WHERE topic = $1";
@@ -100,28 +96,23 @@ exports.fetchAllArticles = async (query) => {
   } else if (query.order == "desc" || !query.order) {
     queryStr += ` DESC`;
   } else {
-    throw({code : 400})
-
+    throw { code: 400 };
   }
 
   const { rows } = await db.query(queryStr, queryValues);
   if (rows.length === 0) {
     throw { status: 404, msg: "Not Found" };
   } else {
-
-   const formattedRows = rows.map(async (article)=>{
-       const sumOfComments = await db.query(
+    const formattedRows = rows.map(async (article) => {
+      const sumOfComments = await db.query(
         "SELECT * FROM comments WHERE article_id = $1;",
         [article.article_id]
       );
-      article.comment_count = sumOfComments.rows.length
-      delete article.body
-      return article
-    })
-    
-    return  Promise.all(formattedRows);
+      article.comment_count = sumOfComments.rows.length;
+      delete article.body;
+      return article;
+    });
+
+    return Promise.all(formattedRows);
   }
-  // } catch (err) {
-  //   throw err;
-  // }
 };

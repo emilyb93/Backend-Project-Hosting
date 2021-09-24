@@ -12,8 +12,7 @@ exports.sendAllUsers = async (req, res, next) => {
 
 exports.sendUserInfo = async (req, res, next) => {
   try {
-    const { username } = req.params;
-    const result = await fetchUserInfo(username);
+    const result = await fetchUserInfo(req);
 
     res.status(200).send({ user: result });
   } catch (err) {

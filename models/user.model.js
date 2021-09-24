@@ -1,10 +1,10 @@
 const db = require("../db/connection");
 
 exports.checkUserExists = async (req) => {
-  // try {
-    const {username} = req.body
-  if(!username){
-    throw({code : 400})
+  
+  const { username } = req.body;
+  if (!username) {
+    throw { code: 400 };
   }
   const result = await db.query("SELECT * FROM users WHERE username = $1", [
     username,
@@ -13,9 +13,7 @@ exports.checkUserExists = async (req) => {
     const err = { status: 404, msg: "Not Found" };
     throw err;
   }
-  // } catch (err) {
-  //   throw(err);
-  // }
+  
 };
 
 exports.fetchAllUsers = async () => {
@@ -23,7 +21,8 @@ exports.fetchAllUsers = async () => {
   return results.rows;
 };
 
-exports.fetchUserInfo = async (username) => {
+exports.fetchUserInfo = async (req) => {
+  const { username } = req.params;
   const result = await db.query("SELECT * FROM users WHERE username = $1", [
     username,
   ]);

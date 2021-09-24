@@ -7,27 +7,26 @@ const {
 const { fetchAllCommentsByArticleID } = require("../models/comment.model.js");
 
 exports.sendArticles = async (req, res, next) => {
-  const { article_id } = req.params;
+  // const { article_id } = req.params;
 
   try {
-    if (article_id) {
-      const singleArticle = await fetchArticleById(article_id);
+   
+      const singleArticle = await fetchArticleById(req);
 
       res.status(200).send({ article: singleArticle });
-    }
+    
   } catch (err) {
     next(err);
   }
 };
 
 exports.updateArticleVotes = async (req, res, next) => {
-  const { article_id } = req.params;
-  const updateObj = req.body;
+  
 
   try {
-    await checkArticleExists(article_id);
+    await checkArticleExists(req);
 
-    const results = await patchArticleVotes(article_id, updateObj);
+    const results = await patchArticleVotes(req);
 
     res.status(202).send({ article: results });
   } catch (err) {
@@ -36,10 +35,10 @@ exports.updateArticleVotes = async (req, res, next) => {
 };
 
 exports.sendAllArticles = async (req, res, next) => {
-  const query = req.query;
+  
 
   try {
-    const sortedArticles = await fetchAllArticles(query);
+    const sortedArticles = await fetchAllArticles(req);
 
     res.status(200).send({ articles: sortedArticles });
   } catch (err) {

@@ -63,6 +63,7 @@ exports.checkCommmentExists = async (req) => {
     "SELECT * FROM comments WHERE comment_id = $1;",
     [comment_id]
   );
+  
 
   if (result.rows.length === 0) {
     throw { status: 404 };

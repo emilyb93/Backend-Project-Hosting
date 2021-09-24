@@ -52,7 +52,7 @@ describe("/api/topics", () => {
   });
 });
 
-describe.only("/api/articles/:article_id/comments", () => {
+describe("/api/articles/:article_id/comments", () => {
   describe("#GET", () => {
     test("request an array of all the comments for an article", async () => {
       const res = await request(app).get("/api/articles/1/comments");
@@ -66,14 +66,12 @@ describe.only("/api/articles/:article_id/comments", () => {
           author: expect.any(String),
           body: expect.any(String),
         });
-        // // console.log(res.body)
       });
     });
     test("request an array of all the comments for an article that has no comments", async () => {
       const res = await request(app).get("/api/articles/2/comments");
       expect(res.status).toBe(200);
       expect(res.body.comments).toHaveLength(0);
-      console.log(res.body);
     });
 
     describe("error handling", () => {
@@ -101,7 +99,7 @@ describe.only("/api/articles/:article_id/comments", () => {
     });
   });
 
-  describe.only("#POST", () => {
+  describe("#POST", () => {
     test("should post a comment to an article, given in the parametric", async () => {
       const sentComment = {
         username: "icellusedkars",
@@ -396,7 +394,7 @@ describe("/api/articles/", () => {
   });
 });
 
-describe.only("/api/comments/:comment_id", () => {
+describe("/api/comments/:comment_id", () => {
   describe("DELETE", () => {
     test("delete comment when comment id supplied", async () => {
       const res = await request(app).delete("/api/comments/1");
