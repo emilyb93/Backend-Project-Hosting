@@ -14,10 +14,11 @@ jobs:
       
       - name: Use Node.js
         uses: actions/setup-node@v1
-        with: node-version: 15
+        with: 
+          node-version: 15
 
       - name: Use PostgreSQL
-        uses: harmon758/progresql-action@v1
+        uses: harmon758/postgresql-action@v1
         with:
           postgresql db: 'nc-news-test'
           postgresql user: 'test_user'
@@ -42,3 +43,4 @@ jobs:
         heroku_api_key: ${{secrets.API_KEY}}
         heroku_app_name: ${{secrets.APP_NAME}}
         heroku_email: ${{secrets.EMAIL}}
+        run: PGDATABASE=nc-news-test PGUSER=test_user PGPASSWORD=test_password npm t
