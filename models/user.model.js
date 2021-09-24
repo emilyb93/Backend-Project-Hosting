@@ -1,5 +1,4 @@
 const db = require("../db/connection");
-const userRouter = require("../routers/user.router");
 
 exports.checkUserExists = async (username) => {
   // try {

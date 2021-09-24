@@ -99,7 +99,7 @@ describe("/api/articles/:article_id/comments", () => {
     });
   });
 
-  describe.only("#POST", () => {
+  describe("#POST", () => {
     test("should post a comment to an article, given in the parametric", async () => {
       const sentComment = {
         username: "icellusedkars",
@@ -126,7 +126,7 @@ describe("/api/articles/:article_id/comments", () => {
     });
 
     describe("error handling", () => {
-      test.only("pass an object with a username that doesnt exist", async () => {
+      test("pass an object with a username that doesnt exist", async () => {
         const comment = {
           username: "xx_sniper_xx",
           body: "my mom thinks im cool",
@@ -139,7 +139,7 @@ describe("/api/articles/:article_id/comments", () => {
         expect(res.body.msg).toBe("Not Found");
       });
 
-      test.only('pass object missing username', async () => {
+      test('pass object missing username', async () => {
         const comment = {
           body: "my mom thinks im cool"
         };
@@ -151,7 +151,7 @@ describe("/api/articles/:article_id/comments", () => {
         expect(res.body.msg).toBe("Bad Request");
       });
 
-      test.only("pass object with no body", async()=>{
+      test("pass object with no body", async()=>{
         const comment = {
           username : "icellusedkars"
         }
