@@ -6,21 +6,16 @@ const {
 } = require("../models/article.model.js");
 
 exports.sendArticles = async (req, res, next) => {
-
   try {
-   
-      const singleArticle = await fetchArticleById(req);
+    const singleArticle = await fetchArticleById(req);
 
-      res.status(200).send({ article: singleArticle });
-    
+    res.status(200).send({ article: singleArticle });
   } catch (err) {
     next(err);
   }
 };
 
 exports.updateArticleVotes = async (req, res, next) => {
-  
-
   try {
     await checkArticleExists(req);
 
@@ -33,8 +28,6 @@ exports.updateArticleVotes = async (req, res, next) => {
 };
 
 exports.sendAllArticles = async (req, res, next) => {
-  
-
   try {
     const sortedArticles = await fetchAllArticles(req);
 
