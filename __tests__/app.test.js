@@ -177,7 +177,7 @@ describe("/api/articles/:article_id", () => {
         body: expect.any(String),
         topic: expect.any(String),
         votes: expect.any(Number),
-        comment_count: expect.any(Number),
+        comment_count: expect.any(Number), 
       });
     });
 
@@ -490,6 +490,21 @@ describe("/api/comments/:comment_id", () => {
         };
 
         const res = await request(app).patch('/api/comments/1').send(updateObj)
+
+        expect(res.status).toBe(400)
+        expect(res.body.msg).toBe("Bad Request")
+      });
+
+      test('parametric is not the right data type: string instead of number', async () => {
+        const updateObj = {
+          inc_votes: 10,
+          comment: "more votes, rad"
+
+        }
+        
+        const res = await request(app)
+        .patch('/api/comments/thatcommentiread')
+        .send(updateObj)
 
         expect(res.status).toBe(400)
         expect(res.body.msg).toBe("Bad Request")

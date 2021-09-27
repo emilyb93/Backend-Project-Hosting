@@ -1,25 +1,20 @@
+const { parse } = require("dotenv");
 const db = require("../db/connection");
 
 exports.fetchArticleById = async (req) => {
   const { article_id } = req.params;
 
   let fetchedArticle = await db.query(
-    "SELECT * FROM articles WHERE article_id = $1;",
+    "SELECT articles.*, COUNT (comment_id) AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id WHERE articles.article_id = $1 GROUP BY articles.article_id;",
     [article_id]
   );
 
   fetchedArticle = fetchedArticle.rows[0];
-  let sumOfComments = await db.query(
-    "SELECT * FROM comments WHERE article_id = $1;",
-    [article_id]
-  );
-
-  sumOfComments = await sumOfComments.rows.length;
 
   if (!fetchedArticle) {
     throw { status: 404 };
   } else {
-    fetchedArticle["comment_count"] = sumOfComments;
+    fetchedArticle["comment_count"] = parseInt(fetchedArticle["comment_count"]);
     return fetchedArticle;
   }
 };
@@ -99,7 +94,6 @@ exports.fetchAllArticles = async (req) => {
     throw { code: 400 };
   }
 
-  
   const { rows } = await db.query(queryStr, queryValues);
   if (rows.length === 0) {
     throw { status: 404, msg: "Not Found" };
