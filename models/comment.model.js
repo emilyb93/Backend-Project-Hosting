@@ -5,7 +5,7 @@ exports.fetchAllCommentsByArticleID = async (req) => {
   const { article_id } = req.params;
 
   const result = await db.query(
-    "SELECT * FROM comments WHERE article_id = $1",
+    "SELECT * FROM comments WHERE article_id = $1 ORDER BY comment_id DESC",
     [article_id]
   );
   return result.rows;
