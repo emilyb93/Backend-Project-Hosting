@@ -1,10 +1,13 @@
 # **News Server Project**
 
 ## - Hosted Version -
+
 ### gitHub Repository
+
 https://github.com/emilyb93/Backend-Project-Hosting
 
 ### Hosted Server
+
 https://news-server-project.herokuapp.com/api
 
 ## - Summary -
@@ -54,7 +57,7 @@ npm run seed
 
 Finally you will need to create 2 files. These files will give the connection file the database name it is to connect to. At the root level of the repo, make 2 files
 
- `.env.development`
+`.env.development`
 
 insert into this file the following
 
