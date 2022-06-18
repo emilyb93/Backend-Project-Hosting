@@ -34,7 +34,7 @@ exports.removeCommentByID = async (req, res, next) => {
   try {
     await deleteCommentByID(req);
 
-    res.status(202).send({ msg: "Accepted" });
+    res.status(204).send();
   } catch (err) {
     next(err);
   }

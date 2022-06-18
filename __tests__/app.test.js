@@ -177,7 +177,7 @@ describe("/api/articles/:article_id", () => {
         body: expect.any(String),
         topic: expect.any(String),
         votes: expect.any(Number),
-        comment_count: expect.any(Number), 
+        comment_count: expect.any(Number),
       });
     });
 
@@ -397,7 +397,7 @@ describe("/api/comments/:comment_id", () => {
   describe("DELETE", () => {
     test("delete comment when comment id supplied", async () => {
       const res = await request(app).delete("/api/comments/1");
-      expect(res.status).toBe(202);
+      expect(res.status).toBe(204);
     });
     describe("error handling", () => {
       test("the comment doesnt exist", async () => {
@@ -436,80 +436,77 @@ describe("/api/comments/:comment_id", () => {
       });
     });
 
-    describe('error handling', () => {
-
-      test('comment id does not exist', async() => {
+    describe("error handling", () => {
+      test("comment id does not exist", async () => {
         const updateObj = {
           inc_votes: 10,
         };
-        const res = await request(app).patch('/api/comments/43194013').send(updateObj)
+        const res = await request(app)
+          .patch("/api/comments/43194013")
+          .send(updateObj);
 
-        expect(res.status).toBe(404)
-        expect(res.body.msg).toBe("Not Found")
+        expect(res.status).toBe(404);
+        expect(res.body.msg).toBe("Not Found");
       });
 
-      test('update object has incorrect key', async() => {
+      test("update object has incorrect key", async () => {
         const updateObj = {
           votes: 10,
         };
 
-        const res = await request(app).patch('/api/comments/4').send(updateObj)
+        const res = await request(app).patch("/api/comments/4").send(updateObj);
 
-        expect(res.status).toBe(400)
-        expect(res.body.msg).toBe("Bad Request")
+        expect(res.status).toBe(400);
+        expect(res.body.msg).toBe("Bad Request");
       });
 
-      test('update object has incorrect data type for inc_votes', async () => {
+      test("update object has incorrect data type for inc_votes", async () => {
         const updateObj = {
           inc_votes: "twenty",
         };
 
-        const res = await request(app).patch('/api/comments/3').send(updateObj)
+        const res = await request(app).patch("/api/comments/3").send(updateObj);
 
-        expect(res.status).toBe(400)
-        expect(res.body.msg).toBe("Bad Request")
-
+        expect(res.status).toBe(400);
+        expect(res.body.msg).toBe("Bad Request");
       });
 
-      test('inc_votes has a value of 0', async() => {
+      test("inc_votes has a value of 0", async () => {
         const updateObj = {
           inc_votes: 0,
         };
 
-        const res = await request(app).patch('/api/comments/2').send(updateObj)
+        const res = await request(app).patch("/api/comments/2").send(updateObj);
 
-        expect(res.status).toBe(400)
-        expect(res.body.msg).toBe("Bad Request")
+        expect(res.status).toBe(400);
+        expect(res.body.msg).toBe("Bad Request");
       });
 
-      test('update object has more keys than expected', async () => {
+      test("update object has more keys than expected", async () => {
         const updateObj = {
           inc_votes: 10,
-          comment: "more votes, rad"
-
+          comment: "more votes, rad",
         };
 
-        const res = await request(app).patch('/api/comments/1').send(updateObj)
+        const res = await request(app).patch("/api/comments/1").send(updateObj);
 
-        expect(res.status).toBe(400)
-        expect(res.body.msg).toBe("Bad Request")
+        expect(res.status).toBe(400);
+        expect(res.body.msg).toBe("Bad Request");
       });
 
-      test('parametric is not the right data type: string instead of number', async () => {
+      test("parametric is not the right data type: string instead of number", async () => {
         const updateObj = {
           inc_votes: 10,
-          comment: "more votes, rad"
+          comment: "more votes, rad",
+        };
 
-        }
-        
         const res = await request(app)
-        .patch('/api/comments/thatcommentiread')
-        .send(updateObj)
+          .patch("/api/comments/thatcommentiread")
+          .send(updateObj);
 
-        expect(res.status).toBe(400)
-        expect(res.body.msg).toBe("Bad Request")
+        expect(res.status).toBe(400);
+        expect(res.body.msg).toBe("Bad Request");
       });
-      
     });
   });
 
