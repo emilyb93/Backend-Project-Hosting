@@ -347,6 +347,22 @@ describe("/api/articles/", () => {
       });
     });
 
+    test("requesting a query with author and topic, along with sort and order, should filter articles correctly with correct sorting", async () => {
+      const res = await request(app).get(
+        "/api/articles?author=icellusedkars&topic=mitch&sort_by=votes&order=asc"
+      );
+
+      expect(res.status).toBe(200);
+
+      expect(res.body.articles.length).toBeGreaterThan(0);
+      res.body.articles.map((article) => {
+        expect(article.author).toBe("icellusedkars");
+        expect(article.topic).toBe("mitch");
+      });
+
+      expect(res.body.articles).toBeSortedBy("votes", { descending: false });
+    });
+
     describe("error handling", () => {
       test("queried with order that is not an accepted term", async () => {
         const res = await request(app).get("/api/articles?order=bananas");
