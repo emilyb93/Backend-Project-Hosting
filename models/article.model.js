@@ -50,7 +50,8 @@ exports.checkArticleExists = async (req) => {
 
 exports.fetchAllArticles = async (req) => {
   const query = req.query;
-  let queryStr = "SELECT * FROM articles";
+  let queryStr =
+    "SELECT a.author, a.title, a.article_id, a.topic, a.created_at, a.votes, COUNT(c.article_id)::int as comment_count FROM articles AS a JOIN comments AS c ON a.article_id = c.article_id";
   let queryValues = [];
   let currentQueryCount = 1;
 
@@ -61,6 +62,7 @@ exports.fetchAllArticles = async (req) => {
     title: "title",
     article_id: "article_id",
     topic: "topic",
+    comment_count: "comment_count",
   };
 
   const validQueryKeys = ["order", "sort_by", "topic", "author"];
@@ -72,7 +74,7 @@ exports.fetchAllArticles = async (req) => {
   });
 
   if (query.topic) {
-    queryStr += ` WHERE topic = $${currentQueryCount}`;
+    queryStr += ` WHERE a.topic = $${currentQueryCount}`;
     queryValues.push(query.topic);
     currentQueryCount++;
   }
@@ -83,17 +85,18 @@ exports.fetchAllArticles = async (req) => {
     } else {
       queryStr += " WHERE";
     }
-    queryStr += ` author = $${currentQueryCount}`;
+    queryStr += ` a.author = $${currentQueryCount}`;
     queryValues.push(query.author);
   }
 
+  queryStr += " GROUP BY a.article_id";
   // adds order by
   if (query.sort_by) {
     if (validQueries[query.sort_by]) {
       queryStr += ` ORDER BY ${validQueries[query.sort_by]}`;
     }
   } else {
-    queryStr += ` ORDER BY created_at`;
+    queryStr += ` ORDER BY a.created_at`;
   }
 
   // add asc/desc
@@ -105,20 +108,23 @@ exports.fetchAllArticles = async (req) => {
     throw { code: 400 };
   }
 
+  console.log("valid query>>", queryStr);
+
   const { rows } = await db.query(queryStr, queryValues);
   if (rows.length === 0) {
     throw { status: 404, msg: "Not Found" };
   } else {
-    const formattedRows = rows.map(async (article) => {
-      const sumOfComments = await db.query(
-        "SELECT * FROM comments WHERE article_id = $1;",
-        [article.article_id]
-      );
-      article.comment_count = sumOfComments.rows.length;
-      delete article.body;
-      return article;
-    });
+    // const formattedRows = rows.map(async (article) => {
+    //   const sumOfComments = await db.query(
+    //     "SELECT * FROM comments WHERE article_id = $1;",
+    //     [article.article_id]
+    //   );
+    //   article.comment_count = sumOfComments.rows.length;
+    //   delete article.body;
+    //   return article;
+    // });
 
-    return Promise.all(formattedRows);
+    // return Promise.all(formattedRows);
+    return rows;
   }
 };

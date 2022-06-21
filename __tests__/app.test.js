@@ -363,6 +363,18 @@ describe("/api/articles/", () => {
       expect(res.body.articles).toBeSortedBy("votes", { descending: false });
     });
 
+    test("should be able to sort by comment_count", async () => {
+      const res = await request(app).get("/api/articles?sort_by=comment_count");
+
+      expect(res.status).toBe(200);
+
+      expect(res.body.articles.length).toBeGreaterThan(0);
+
+      expect(res.body.articles).toBeSortedBy("comment_count", {
+        descending: true,
+      });
+    });
+
     describe("error handling", () => {
       test("queried with order that is not an accepted term", async () => {
         const res = await request(app).get("/api/articles?order=bananas");
