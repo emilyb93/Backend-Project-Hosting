@@ -375,6 +375,24 @@ describe("/api/articles/", () => {
       });
     });
 
+    test("should be able to sort by comment_count in compound queries", async () => {
+      const res = await request(app).get(
+        "/api/articles?author=icellusedkars&topic=mitch&sort_by=comment_count&order=asc"
+      );
+
+      expect(res.status).toBe(200);
+
+      expect(res.body.articles).toHaveLength(6);
+      res.body.articles.map((article) => {
+        expect(article.author).toBe("icellusedkars");
+        expect(article.topic).toBe("mitch");
+      });
+
+      expect(res.body.articles).toBeSortedBy("comment_count", {
+        descending: false,
+      });
+    });
+
     describe("error handling", () => {
       test("queried with order that is not an accepted term", async () => {
         const res = await request(app).get("/api/articles?order=bananas");
