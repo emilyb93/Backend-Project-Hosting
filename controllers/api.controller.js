@@ -7,7 +7,6 @@ exports.sendGreeting = async (req, res, next) => {
     endpoints: endpoints,
   };
 
-  // console.log(endpoints.json())
   try {
     return res.status(200).send(apiObject);
   } catch (err) {

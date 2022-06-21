@@ -2,22 +2,24 @@ const express = require("express");
 const apiRouter = require("./routers/api.router");
 const { send404, handlePSQLError } = require("./controllers/error.controller");
 const app = express();
-const cors = require('cors')
+const cors = require("cors");
 
-app.use(cors())
+app.use(cors());
 app.use(express.json());
 app.use("/api", apiRouter);
 
 app.all("*", (req, res, next) => {
-  next(res);
+  send404(res, next);
 });
 
 app.use((err, req, res, next) => {
-  // console.log(err)
   if (err.code) {
     handlePSQLError(res, next);
-  } else {
+  } else if (err.status === 404) {
     send404(res, next);
+  } else {
+    console.log(err);
+    res.status(500).send({ msg: "Internal Server Error" });
   }
 });
 

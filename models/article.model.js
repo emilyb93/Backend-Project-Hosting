@@ -50,8 +50,10 @@ exports.checkArticleExists = async (req) => {
 
 exports.fetchAllArticles = async (req) => {
   const query = req.query;
-  let queryStr = "SELECT * FROM articles";
+  let queryStr =
+    "SELECT a.author, a.title, a.article_id, a.topic, a.created_at, a.votes, COUNT(c.article_id)::int as comment_count FROM articles AS a LEFT JOIN comments AS c ON a.article_id = c.article_id";
   let queryValues = [];
+  let currentQueryCount = 1;
 
   const validQueries = {
     date: "created_at",
@@ -60,9 +62,10 @@ exports.fetchAllArticles = async (req) => {
     title: "title",
     article_id: "article_id",
     topic: "topic",
+    comment_count: "comment_count",
   };
 
-  const validQueryKeys = ["order", "sort_by", "topic"];
+  const validQueryKeys = ["order", "sort_by", "topic", "author"];
 
   Object.keys(query).forEach((queryKey) => {
     if (validQueryKeys.indexOf(queryKey) === -1) {
@@ -71,18 +74,29 @@ exports.fetchAllArticles = async (req) => {
   });
 
   if (query.topic) {
-    queryStr += " WHERE topic = $1";
+    queryStr += ` WHERE a.topic = $${currentQueryCount}`;
     queryValues.push(query.topic);
+    currentQueryCount++;
   }
 
+  if (query.author) {
+    if (currentQueryCount > 1) {
+      queryStr += " AND";
+    } else {
+      queryStr += " WHERE";
+    }
+    queryStr += ` a.author = $${currentQueryCount}`;
+    queryValues.push(query.author);
+  }
+
+  queryStr += " GROUP BY a.article_id";
   // adds order by
   if (query.sort_by) {
     if (validQueries[query.sort_by]) {
       queryStr += ` ORDER BY ${validQueries[query.sort_by]}`;
     }
-    // console.log(queryStr, queryValues);
   } else {
-    queryStr += ` ORDER BY created_at`;
+    queryStr += ` ORDER BY a.created_at`;
   }
 
   // add asc/desc
@@ -98,16 +112,6 @@ exports.fetchAllArticles = async (req) => {
   if (rows.length === 0) {
     throw { status: 404, msg: "Not Found" };
   } else {
-    const formattedRows = rows.map(async (article) => {
-      const sumOfComments = await db.query(
-        "SELECT * FROM comments WHERE article_id = $1;",
-        [article.article_id]
-      );
-      article.comment_count = sumOfComments.rows.length;
-      delete article.body;
-      return article;
-    });
-
-    return Promise.all(formattedRows);
+    return rows;
   }
 };

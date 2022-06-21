@@ -11,29 +11,22 @@ const {
 } = require("../utils/data-manipulation");
 
 const seed = async (data) => {
-  
   // 1. create tables
-try {
-  const dropAndCreate = async () => {
-    await dropTables();
-    await createTables();
-    // return await showTables().then((results)=>{
-    //   console.log(results, "in the seed")
+  try {
+    const dropAndCreate = async () => {
+      await dropTables();
+      await createTables();
+    };
+    await dropAndCreate();
 
-    // })
-  };
-  await dropAndCreate();
+    // 2. insert data
 
-  // 2. insert data
+    const inputData = await formatData(data);
 
-  const inputData = await formatData(data);
-
-  await insertData(inputData);}
-  catch(err){
-    console.log(err)
+    await insertData(inputData);
+  } catch (err) {
+    console.log(err);
   }
-
-
 };
 
 module.exports = seed;

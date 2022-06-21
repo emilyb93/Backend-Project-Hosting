@@ -292,6 +292,107 @@ describe("/api/articles/", () => {
       });
     });
 
+    test('requesting a query with "author" to get only posts by a certain author', async () => {
+      const res = await request(app).get("/api/articles?author=icellusedkars");
+
+      expect(res.status).toBe(200);
+
+      expect(res.body.articles.length).toBeGreaterThan(0);
+      res.body.articles.map((article) => {
+        expect(article.author).toBe("icellusedkars");
+      });
+    });
+
+    test("requesting a query with author and a sort by should filter and sort articles", async () => {
+      const res = await request(app).get(
+        "/api/articles?author=icellusedkars&sort_by=votes"
+      );
+
+      expect(res.status).toBe(200);
+
+      expect(res.body.articles.length).toBeGreaterThan(0);
+      res.body.articles.map((article) => {
+        expect(article.author).toBe("icellusedkars");
+      });
+
+      expect(res.body.articles).toBeSortedBy("votes", { descending: true });
+    });
+
+    test("requesting a query with author, sort by, and order, should filter and sort articles in requested order", async () => {
+      const res = await request(app).get(
+        "/api/articles?author=icellusedkars&sort_by=votes&order=asc"
+      );
+
+      expect(res.status).toBe(200);
+
+      expect(res.body.articles.length).toBeGreaterThan(0);
+      res.body.articles.map((article) => {
+        expect(article.author).toBe("icellusedkars");
+      });
+
+      expect(res.body.articles).toBeSortedBy("votes", { descending: false });
+    });
+
+    test("requesting a query with author and topic should filter articles correctly", async () => {
+      const res = await request(app).get(
+        "/api/articles?author=icellusedkars&topic=mitch"
+      );
+
+      expect(res.status).toBe(200);
+
+      expect(res.body.articles.length).toBeGreaterThan(0);
+      res.body.articles.map((article) => {
+        expect(article.author).toBe("icellusedkars");
+        expect(article.topic).toBe("mitch");
+      });
+    });
+
+    test("requesting a query with author and topic, along with sort and order, should filter articles correctly with correct sorting", async () => {
+      const res = await request(app).get(
+        "/api/articles?author=icellusedkars&topic=mitch&sort_by=votes&order=asc"
+      );
+
+      expect(res.status).toBe(200);
+
+      expect(res.body.articles.length).toBeGreaterThan(0);
+      res.body.articles.map((article) => {
+        expect(article.author).toBe("icellusedkars");
+        expect(article.topic).toBe("mitch");
+      });
+
+      expect(res.body.articles).toBeSortedBy("votes", { descending: false });
+    });
+
+    test("should be able to sort by comment_count", async () => {
+      const res = await request(app).get("/api/articles?sort_by=comment_count");
+
+      expect(res.status).toBe(200);
+
+      expect(res.body.articles.length).toBeGreaterThan(0);
+
+      expect(res.body.articles).toBeSortedBy("comment_count", {
+        descending: true,
+      });
+    });
+
+    test("should be able to sort by comment_count in compound queries", async () => {
+      const res = await request(app).get(
+        "/api/articles?author=icellusedkars&topic=mitch&sort_by=comment_count&order=asc"
+      );
+
+      expect(res.status).toBe(200);
+
+      expect(res.body.articles).toHaveLength(6);
+      res.body.articles.map((article) => {
+        expect(article.author).toBe("icellusedkars");
+        expect(article.topic).toBe("mitch");
+      });
+
+      expect(res.body.articles).toBeSortedBy("comment_count", {
+        descending: false,
+      });
+    });
+
     describe("error handling", () => {
       test("queried with order that is not an accepted term", async () => {
         const res = await request(app).get("/api/articles?order=bananas");
