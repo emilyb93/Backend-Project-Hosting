@@ -303,6 +303,35 @@ describe("/api/articles/", () => {
       });
     });
 
+    test("requesting a query with author and a sort by should filter and sort articles", async () => {
+      const res = await request(app).get(
+        "/api/articles?author=icellusedkars&sort_by=votes"
+      );
+
+      expect(res.status).toBe(200);
+
+      expect(res.body.articles.length).toBeGreaterThan(0);
+      res.body.articles.map((article) => {
+        expect(article.author).toBe("icellusedkars");
+      });
+
+      expect(res.body.articles).toBeSortedBy("votes", { descending: true });
+    });
+    test("requesting a query with author, sort by, and order, should filter and sort articles in requested order", async () => {
+      const res = await request(app).get(
+        "/api/articles?author=icellusedkars&sort_by=votes&order=asc"
+      );
+
+      expect(res.status).toBe(200);
+
+      expect(res.body.articles.length).toBeGreaterThan(0);
+      res.body.articles.map((article) => {
+        expect(article.author).toBe("icellusedkars");
+      });
+
+      expect(res.body.articles).toBeSortedBy("votes", { descending: false });
+    });
+
     describe("error handling", () => {
       test("queried with order that is not an accepted term", async () => {
         const res = await request(app).get("/api/articles?order=bananas");
