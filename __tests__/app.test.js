@@ -317,6 +317,7 @@ describe("/api/articles/", () => {
 
       expect(res.body.articles).toBeSortedBy("votes", { descending: true });
     });
+
     test("requesting a query with author, sort by, and order, should filter and sort articles in requested order", async () => {
       const res = await request(app).get(
         "/api/articles?author=icellusedkars&sort_by=votes&order=asc"
@@ -330,6 +331,20 @@ describe("/api/articles/", () => {
       });
 
       expect(res.body.articles).toBeSortedBy("votes", { descending: false });
+    });
+
+    test("requesting a query with author and topic should filter articles correctly", async () => {
+      const res = await request(app).get(
+        "/api/articles?author=icellusedkars&topic=mitch"
+      );
+
+      expect(res.status).toBe(200);
+
+      expect(res.body.articles.length).toBeGreaterThan(0);
+      res.body.articles.map((article) => {
+        expect(article.author).toBe("icellusedkars");
+        expect(article.topic).toBe("mitch");
+      });
     });
 
     describe("error handling", () => {

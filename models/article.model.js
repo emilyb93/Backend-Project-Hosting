@@ -52,6 +52,7 @@ exports.fetchAllArticles = async (req) => {
   const query = req.query;
   let queryStr = "SELECT * FROM articles";
   let queryValues = [];
+  let currentQueryCount = 1;
 
   const validQueries = {
     date: "created_at",
@@ -71,11 +72,18 @@ exports.fetchAllArticles = async (req) => {
   });
 
   if (query.topic) {
-    queryStr += " WHERE topic = $1";
+    queryStr += ` WHERE topic = $${currentQueryCount}`;
     queryValues.push(query.topic);
+    currentQueryCount++;
   }
+
   if (query.author) {
-    queryStr += " WHERE author = $1";
+    if (currentQueryCount > 1) {
+      queryStr += " AND";
+    } else {
+      queryStr += " WHERE";
+    }
+    queryStr += ` author = $${currentQueryCount}`;
     queryValues.push(query.author);
   }
 
@@ -84,7 +92,6 @@ exports.fetchAllArticles = async (req) => {
     if (validQueries[query.sort_by]) {
       queryStr += ` ORDER BY ${validQueries[query.sort_by]}`;
     }
-    // console.log(queryStr, queryValues);
   } else {
     queryStr += ` ORDER BY created_at`;
   }
