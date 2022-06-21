@@ -292,6 +292,17 @@ describe("/api/articles/", () => {
       });
     });
 
+    test('requesting a query with "author" to get only posts by a certain author', async () => {
+      const res = await request(app).get("/api/articles?author=icellusedkars");
+
+      expect(res.status).toBe(200);
+
+      expect(res.body.articles.length).toBeGreaterThan(0);
+      res.body.articles.map((article) => {
+        expect(article.author).toBe("icellusedkars");
+      });
+    });
+
     describe("error handling", () => {
       test("queried with order that is not an accepted term", async () => {
         const res = await request(app).get("/api/articles?order=bananas");

@@ -62,7 +62,7 @@ exports.fetchAllArticles = async (req) => {
     topic: "topic",
   };
 
-  const validQueryKeys = ["order", "sort_by", "topic"];
+  const validQueryKeys = ["order", "sort_by", "topic", "author"];
 
   Object.keys(query).forEach((queryKey) => {
     if (validQueryKeys.indexOf(queryKey) === -1) {
@@ -73,6 +73,10 @@ exports.fetchAllArticles = async (req) => {
   if (query.topic) {
     queryStr += " WHERE topic = $1";
     queryValues.push(query.topic);
+  }
+  if (query.author) {
+    queryStr += " WHERE author = $1";
+    queryValues.push(query.author);
   }
 
   // adds order by
