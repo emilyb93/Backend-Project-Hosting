@@ -13,7 +13,6 @@ app.all("*", (req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-  console.log(err);
   if (err.code) {
     handlePSQLError(res, next);
   } else {

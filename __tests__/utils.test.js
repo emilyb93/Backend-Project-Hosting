@@ -1,7 +1,6 @@
 const { formatData, insertData } = require("../db/utils/data-manipulation");
 const testData = require("../db/data/test-data/index.js");
 
-// console.log(Object.keys(testData));
 const { articleData, commentData, topicData, userData } = testData;
 
 describe("#formatData", () => {
@@ -13,20 +12,18 @@ describe("#formatData", () => {
       articleValues: expect.any(Array),
       commentValues: expect.any(Array),
     };
-    // console.log(output.articleValues)
+
     expect(output).toMatchObject(expectedOutput);
   });
   test("each array of data should contain the same amount of entrys in the array passed to it", () => {
     const output = formatData(testData);
     expect(output.articleValues.length).toBe(articleData.length);
   });
-  test('ensure that the original data is not mutated', () => {
-    const copyTest = {...testData}
-    formatData(testData)
-    
-    expect(copyTest).toEqual(testData)
-    expect(testData).not.toBe(copyTest)
+  test("ensure that the original data is not mutated", () => {
+    const copyTest = { ...testData };
+    formatData(testData);
+
+    expect(copyTest).toEqual(testData);
+    expect(testData).not.toBe(copyTest);
   });
 });
-
-
