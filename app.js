@@ -9,14 +9,17 @@ app.use(express.json());
 app.use("/api", apiRouter);
 
 app.all("*", (req, res, next) => {
-  next(res);
+  send404(res, next);
 });
 
 app.use((err, req, res, next) => {
   if (err.code) {
     handlePSQLError(res, next);
-  } else {
+  } else if (err.status === 404) {
     send404(res, next);
+  } else {
+    console.log(err);
+    res.status(500).send({ msg: "Internal Server Error" });
   }
 });
 
