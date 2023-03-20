@@ -1,7 +1,7 @@
 FROM vm/ubuntu:18.04
 
 RUN curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
-RUN sudo apt-get install -y nodejs
+RUN sudo apt-get install -y nodejs@14
 RUN sudo npm install npm@latest -g
 
 
